@@ -95,8 +95,7 @@ public class DAO {
 	//
 public int  addproduct(HttpServletRequest request) {
 		
-	String path = "C:/Users/Swapnil/eclipse-workspace/imagetable2/src/main/webapp/";
-	
+	String path = "C:/Users/lucas/Documents/UFF_2025_1/Qualidade/Trabalho_2/trabalho-teste_em_producao/src/main/webapp";
 	
 	
 		int a =  0;

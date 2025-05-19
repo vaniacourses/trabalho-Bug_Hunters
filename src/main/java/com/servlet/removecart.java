@@ -35,15 +35,10 @@ public class removecart extends HttpServlet {
 			
 		String id = request.getParameter("id");
 		String ie = request.getParameter("ie");
-
 		
 		cart d = new cart();
 		d.setName(id);
 		d.setPimage(ie);
-		
-		
-		
-		
 		
 		try{
 			
@@ -53,16 +48,11 @@ public class removecart extends HttpServlet {
 			if(dao.removecart(d) > 0)
 			{
 					response.sendRedirect("cart.jsp");
-		
 			}
 			else
 			{
-				
 					response.sendRedirect("cart.jsp");
 			}
-			
-			
-			
 			}catch(Exception ex){
 			   System.out.println(ex.getMessage());
 			}
@@ -74,12 +64,6 @@ public class removecart extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		
-		
-			
-		
-		
 	}
 
 }
