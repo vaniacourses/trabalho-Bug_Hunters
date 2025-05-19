@@ -18,9 +18,6 @@ import com.entity.cart;
 import com.entity.order_details;
 
 
-
-
-
 @MultipartConfig
 @WebServlet("/removetable_order_details")
 public class removetable_order_details extends HttpServlet {
@@ -36,42 +33,25 @@ public class removetable_order_details extends HttpServlet {
 			
 		String id = request.getParameter("id");
 		String ie = request.getParameter("ie");
-		
-		
-	
+
 			order_details c = new order_details();
 			c.setDate(id);
 			c.setPimage(ie);
-		
-		
-		
-		
+
 		
 		try{
-			
-			
+
 			DAO5 dao = new DAO5(DBConnect.getConn());
-			
-			
+
 				if(dao.removeorder_details(c) > 0)
 					response.sendRedirect("table_order_details.jsp");					
 				else
 					response.sendRedirect("table_order_details.jsp");					
-			
-			
-				
-			
-			
+
 			}catch(Exception ex){
 			   System.out.println(ex.getMessage());
 			}
-			
-	
-				
-			
-	
 	}
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		

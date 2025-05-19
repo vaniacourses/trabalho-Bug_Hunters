@@ -36,9 +36,6 @@ public class ShippingAddress2 extends HttpServlet {
 			}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		
-		
 
 		String CName = request.getParameter("CName");
 		String City = request.getParameter("City");
@@ -63,14 +60,7 @@ public class ShippingAddress2 extends HttpServlet {
 			 response.sendRedirect("confirmonline.jsp?CName= "+CName+" &City="+City+" &Total="+Total+" &CusName="+CusName+"");
 			// response.sendRedirect("orders.jsp?CName= "+CName+"  &City="+City+" &Total="+Total+"");
 		 }
-		 
-		 
-		 
-		 
-		 
-			
-		
-		
+
 	}
 
 }
