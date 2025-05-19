@@ -39,7 +39,7 @@ projeto
 
 ```
 ## Diagramas de Classe
-- [AddCustomerTest.java](https://raw.githubusercontent.com/vaniacourses/trabalho-Bug_Hunters/refs/heads/main/Diagram/AddCustomerTest.png?token=GHSAT0AAAAAADBIMYDLKAUTQZPKUHAJE3B22BLJMMQ)
+- [AddCustomerTest.java](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/Diagram/AddCustomerTest.png?raw=true)
 
 
 ## Stack utilizada
