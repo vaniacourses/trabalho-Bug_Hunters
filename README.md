@@ -28,6 +28,7 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 ## Casos de Testes
 - [Verificação de Registro e Login do Cliente](https://docs.google.com/document/d/1D0CXA5cJf06jZ1IqneT4Cv-6EB-2OaQXYwr8Lp4sgHo/edit?usp=sharing)
 - [Verificação de Adição de um Novo Produto](https://docs.google.com/document/d/1joRWYE2tIPf17xQe9yUBcslsZ5TAlI-x4PoXRQNPxrQ/edit?usp=sharing)
+- [Verificação de adição de item ao "carrinho"](https://docs.google.com/document/d/e/2PACX-1vRiXSeqF9upLPE8vMwhl3udrIxsjTUHNiDmUqB6Q2QEFhUVt8jY1T_K9PkCQl43LV3f3bnukUN_r6HT/pub)
 
 
 
