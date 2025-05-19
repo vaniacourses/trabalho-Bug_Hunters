@@ -1,1 +1,55 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19343335&assignment_repo_type=AssignmentRepo)
+
+# Ecommerce App
+
+O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva para a compra e venda de produtos online, atendendo tanto clientes quanto administradores de forma eficiente e segura. O sistema permite que visitantes criem contas, acessem e visualizem detalhes dos produtos disponíveis, e entrem em contato com a loja para tirar dúvidas ou enviar mensagens. Após o registro, os clientes podem adicionar produtos ao carrinho, realizar compras, consultar o histórico de pedidos, visualizar detalhes dos produtos e gerenciar suas próprias compras, incluindo a possibilidade de deletar compras conforme a política da loja.
+
+## Funcionalidades
+
+- Adicionar Produtos no carrinho
+- Registrar Usuário
+- Realizar Login
+- Realizar Logout
+- Comprar um Produto
+- Visualizar Compras recentes
+- Deletar uma Compra
+- Visualizar detalhes de produtos
+- Preencher Formulário de Contato
+- Adicionar Produto
+- Gerenciar Clientes
+- Deletar uma compra que não seja sua
+
+
+
+
+## Plano de Teste
+- [Plano de Teste](https://docs.google.com/document/d/1Iq4roJnVg1pyr0kOp4hbxOn9nQsFTtcIsNx82GgtNsU/edit?usp=sharing)
+
+
+## Casos de Testes
+- [Verificação de Registro e Login do Cliente](https://docs.google.com/document/d/1D0CXA5cJf06jZ1IqneT4Cv-6EB-2OaQXYwr8Lp4sgHo/edit?usp=sharing)
+
+
+## Path Testes Unitários
+```
+projeto
+├── test
+│   └── java
+│       └── AddCustomerTest.java 
+
+```
+- [AddCustomerTest.java]()
+
+
+## Stack utilizada
+
+**Front-end:** HTML,CSS, Bootstrap,  JSP & Javascript
+
+**Back-end:** Java
+
+**DB:** MySQL
+
+**Server:** TomCat
+
+**Dependency Management:** Maven
+
+**IDLE:** Intellij
