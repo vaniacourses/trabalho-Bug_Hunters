@@ -37,7 +37,7 @@ projeto
 │       └── AddCustomerTest.java 
 
 ```
-- [AddCustomerTest.java]()
+- [AddCustomerTest.java](https://raw.githubusercontent.com/vaniacourses/trabalho-Bug_Hunters/refs/heads/main/Diagram/AddCustomerTest.png?token=GHSAT0AAAAAADBIMYDLKAUTQZPKUHAJE3B22BLJMMQ)
 
 
 ## Stack utilizada
