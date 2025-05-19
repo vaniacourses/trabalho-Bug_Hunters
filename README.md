@@ -29,7 +29,8 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 - [Verificação de Registro e Login do Cliente](https://docs.google.com/document/d/1D0CXA5cJf06jZ1IqneT4Cv-6EB-2OaQXYwr8Lp4sgHo/edit?usp=sharing)
 
 
-## Path Testes Unitários
+## Testes Unitários
+### Path
 ```
 projeto
 ├── test
@@ -37,6 +38,7 @@ projeto
 │       └── AddCustomerTest.java 
 
 ```
+## Diagramas de Classe
 - [AddCustomerTest.java](https://raw.githubusercontent.com/vaniacourses/trabalho-Bug_Hunters/refs/heads/main/Diagram/AddCustomerTest.png?token=GHSAT0AAAAAADBIMYDLKAUTQZPKUHAJE3B22BLJMMQ)
 
 
