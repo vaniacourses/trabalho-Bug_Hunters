@@ -22,14 +22,23 @@ import com.entity.brand;
 
 public class DAO {
 	private Connection conn;
+	private MyUtilities myUtilities;
+	private ServletFileUpload servletFileUpload;
 	
-	public DAO(Connection conn) {
-		this.conn = conn;
-	}
+	// Construtor padrão (produção)
+    public DAO(Connection conn) {
+        this.conn = conn;
+        this.myUtilities = new MyUtilities();
+    }
+
+	public DAO(Connection conn, MyUtilities myUtilities, ServletFileUpload servletFileUpload) {
+    this.conn = conn;
+    this.myUtilities = myUtilities;
+    this.servletFileUpload = servletFileUpload;
+}
 	
 	
 	// list all brand
-	
 	public List<brand> getAllbrand(){
 		List<brand> listb = new ArrayList<brand>();
 		
@@ -90,112 +99,89 @@ public class DAO {
 			
 			return listc;
 		}
-	
-	
-	//
-public int  addproduct(HttpServletRequest request) {
-		
-	String path = "C:/Users/lucas/Documents/UFF_2025_1/Qualidade/Trabalho_2/trabalho-teste_em_producao/src/main/webapp";
-	
-	
-		int a =  0;
-		try {
-			
-			String pname = "";
-			int pprice = 0;
-			int pquantity = 0;
-			String pimage = "";
-			int bid = 0;
-			int cid = 0;
-			
-			String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
-			PreparedStatement ps= conn.prepareStatement(sql);
-			
 
-			List<FileItem> multiparts = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
-			
-			for (FileItem item1 : multiparts) {
-				if (item1.isFormField()) {
-					if (item1.getFieldName().equals("pname"))
-						pname = item1.getString();
+public int addproduct(HttpServletRequest request) {
+    String path = "C://Users//calis//IdeaProjects//trabalho-Bug_Hunters//src//main//webapp//images";
+    int a = 0;
+    try {
+        String pname = "";
+        int pprice = 0;
+        int pquantity = 0;
+        String pimage = "";
+        int bid = 0;
+        int cid = 0;
 
-					if (item1.getFieldName().equals("pprice"))
-						pprice = Integer.parseInt(item1.getString());
+        String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
+        PreparedStatement ps = conn.prepareStatement(sql);
 
-					if (item1.getFieldName().equals("pquantity"))
-						pquantity = Integer.parseInt(item1.getString());
-					
+        // Use o mock/injetado!
+        List<FileItem> multiparts = servletFileUpload.parseRequest(request);
 
-					if (item1.getFieldName().equals("bname"))
-						{
-						if(item1.getString().equals("samsung"))
-							bid = 1;
-						if(item1.getString().equals("sony"))
-							bid = 2;
-						if(item1.getString().equals("lenovo"))
-							bid = 3;
-						if(item1.getString().equals("acer"))
-							bid = 4;
-						if(item1.getString().equals("onida"))
-							bid = 5;
-						}
-					if (item1.getFieldName().equals("cname"))
-					{
-						if(item1.getString().equals("laptop"))
-							cid = 1;
-						if(item1.getString().equals("tv"))
-							cid = 2;
-						if(item1.getString().equals("mobile"))
-							cid = 3;
-						if(item1.getString().equals("watch"))
-							cid = 4;
-					}
+        for (FileItem item1 : multiparts) {
+            if (item1.isFormField()) {
+                if (item1.getFieldName().equals("pname"))
+                    pname = item1.getString();
 
-				}
-				
-				else
-					{
-					com.utility.MyUtilities m1=new MyUtilities();
-					String destinationpath=path + "images/";
-					ArrayList <String> ext=new ArrayList();
-					ext.add(".jpg");ext.add(".bmp");ext.add(".jpeg");ext.add(".png");ext.add(".webp");
-					
-					pimage = m1.UploadFile(item1, destinationpath, ext);
-					
-					}
-			}
-			
-			if(pimage.equals("Problem with upload") == false)
-			{
-				
-				
-				ps.setString(1, pname);
-				ps.setInt(2,pprice);
-				ps.setInt(3,pquantity);
-				ps.setString(4,pimage);
-				ps.setInt(5,bid);
-				ps.setInt(6,cid);
-				ps.executeUpdate();
-				a = 1;
-			}
-			
-			System.out.println("pname: " + pname);
-			System.out.println("pprice: " + pprice);
-			System.out.println("pquantity: " + pquantity);
-			System.out.println("pimage: " + pimage);
-			System.out.println("bid: " + bid);
-			System.out.println("cid: " + cid);
+                if (item1.getFieldName().equals("pprice"))
+                    pprice = Integer.parseInt(item1.getString());
 
-			
-			conn.close();
-			
-		}catch (Exception e) {
-			System.out.println(e);
-		}
-	return a;
-		
-	}
+                if (item1.getFieldName().equals("pquantity"))
+                    pquantity = Integer.parseInt(item1.getString());
 
+                if (item1.getFieldName().equals("bname")) {
+                    if (item1.getString().equals("samsung"))
+                        bid = 1;
+                    if (item1.getString().equals("sony"))
+                        bid = 2;
+                    if (item1.getString().equals("lenovo"))
+                        bid = 3;
+                    if (item1.getString().equals("acer"))
+                        bid = 4;
+                    if (item1.getString().equals("onida"))
+                        bid = 5;
+                }
+                if (item1.getFieldName().equals("cname")) {
+                    if (item1.getString().equals("laptop"))
+                        cid = 1;
+                    if (item1.getString().equals("tv"))
+                        cid = 2;
+                    if (item1.getString().equals("mobile"))
+                        cid = 3;
+                    if (item1.getString().equals("watch"))
+                        cid = 4;
+                }
+            } else {
+                ArrayList<String> ext = new ArrayList<>();
+                ext.add(".jpg"); ext.add(".bmp"); ext.add(".jpeg"); ext.add(".png"); ext.add(".webp");
+                pimage = myUtilities.UploadFile(item1, path, ext);
+            }
+        }
+
+        if (!pimage.equals("Problem with upload")) {
+            ps.setString(1, pname);
+            ps.setInt(2, pprice);
+            ps.setInt(3, pquantity);
+            ps.setString(4, pimage);
+            ps.setInt(5, bid);
+            ps.setInt(6, cid);
+            ps.executeUpdate();
+            a = 1;
+        }
+
+        System.out.println("pname: " + pname);
+        System.out.println("pprice: " + pprice);
+        System.out.println("pquantity: " + pquantity);
+        System.out.println("pimage: " + pimage);
+        System.out.println("bid: " + bid);
+        System.out.println("cid: " + cid);
+
+        conn.close();
+
+    } catch (Exception e) {
+        System.out.println(e);
+    }
+    return a;
+}
 
 //display all customers
 
