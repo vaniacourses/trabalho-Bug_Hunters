@@ -27,6 +27,8 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 
 ## Casos de Testes
 - [Verificação de Registro e Login do Cliente](https://docs.google.com/document/d/1D0CXA5cJf06jZ1IqneT4Cv-6EB-2OaQXYwr8Lp4sgHo/edit?usp=sharing)
+- [Verificação de Adição de um Novo Produto](https://docs.google.com/document/d/1joRWYE2tIPf17xQe9yUBcslsZ5TAlI-x4PoXRQNPxrQ/edit?usp=sharing)
+
 
 
 ## Testes Unitários
@@ -35,7 +37,8 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 projeto
 ├── test
 │   └── java
-│       └── AddCustomerTest.java 
+│       └── AddCustomerTest.java
+|       └── AddNewProductTest.java 
 
 ```
 ## Diagramas de Classe
