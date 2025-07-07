@@ -146,6 +146,12 @@ private void processFormField(FileItem item, ProductData data) {
         case "cname":
             data.setCid(getCategoryId(fieldValue));
             break;
+        default:
+            // Campo de formulário não reconhecido - log para debugging se necessário
+            if (logger.isLoggable(Level.FINE)) {
+                logger.fine("Unknown form field: " + fieldName + " with value: " + fieldValue);
+            }
+            break;
     }
 }
 
