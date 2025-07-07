@@ -41,7 +41,7 @@ public class DAO {
 	
 	// list all brand
 	public List<brand> getAllbrand(){
-		List<brand> listb = new ArrayList<brand>();
+		List<brand> listb = new ArrayList<>();
 		
 		try {
 			String sql = "select * from brand";
@@ -68,7 +68,7 @@ public class DAO {
 	// list all category
 	
 	public List<category> getAllcategory(){
-		List<category> listc = new ArrayList<category>();
+		List<category> listc = new ArrayList<>();
 		
 		try {
 			String sql = "select * from category";
@@ -183,7 +183,7 @@ public int addproduct(HttpServletRequest request) {
 
 public List<customer> getAllCustomer()
 {
-	List<customer> list = new ArrayList <customer>();
+	List<customer> list = new ArrayList<>();
 	
 	try {
 		String sql = "select * from customer";
@@ -242,7 +242,7 @@ public List<customer> getAllCustomer()
 
 public List<customer> getCustomer(String eid)
 {
-	List<customer> list = new ArrayList <customer>();
+	List<customer> list = new ArrayList<>();
 	
 	try {
 		String sql = "select * from customer where Email_Id=?";
