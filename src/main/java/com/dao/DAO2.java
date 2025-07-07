@@ -33,6 +33,19 @@ public class DAO2 {
 	}
 	
 	
+
+	// Helper method to map ResultSet to viewlist
+	private viewlist mapResultSetToViewlist(ResultSet rs) throws Exception {
+		viewlist v = new viewlist();
+		v.setBname(rs.getString(1));
+		v.setCname(rs.getString(2));
+		v.setPname(rs.getString(3));
+		v.setPprice(rs.getInt(4));
+		v.setPquantity(rs.getInt(5));
+		v.setPimage(rs.getString(6));
+		return v;
+	}
+
 	// viewproduct
 	
 	public List<viewlist> getAllviewlist(){
@@ -46,17 +59,8 @@ public class DAO2 {
 			
 			ResultSet rs = ps.executeQuery();
 			
-			while(rs.next())
-			{
-				v = new viewlist();
-				v.setBname(rs.getString(1));
-				v.setCname(rs.getString(2));
-				v.setPname(rs.getString(3));
-				v.setPprice(rs.getInt(4));
-				v.setPquantity(rs.getInt(5));
-				v.setPimage(rs.getString(6));
-				listv.add(v);
-				
+			while(rs.next()) {
+				listv.add(mapResultSetToViewlist(rs));
 			}
 			
 			
@@ -181,18 +185,9 @@ public class DAO2 {
 				
 				ResultSet rs = ps.executeQuery();
 				
-				while(rs.next())
-				{
-					v = new viewlist();
-					v.setBname(rs.getString(1));
-					v.setCname(rs.getString(2));
-					v.setPname(rs.getString(3));
-					v.setPprice(rs.getInt(4));
-					v.setPquantity(rs.getInt(5));
-					v.setPimage(rs.getString(6));
-					listv.add(v);
-					
-				}
+				while(rs.next()) {
+				listv.add(mapResultSetToViewlist(rs));
+			}
 				
 				
 					
