@@ -46,31 +46,26 @@ public class DAO {
 	public List<brand> getAllbrand(){
 		List<brand> listb = new ArrayList<brand>();
 		
-		brand b = null;
-		
 		try {
 			String sql = "select * from brand";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				b = new brand();
-				b.setBid(rs.getInt(1));
-				b.setBname(rs.getString(2));
-				listb.add(b);
+			try (PreparedStatement ps = conn.prepareStatement(sql);
+				 ResultSet rs = ps.executeQuery()) {
 				
+				while(rs.next())
+				{
+					brand b = new brand();
+					b.setBid(rs.getInt(1));
+					b.setBname(rs.getString(2));
+					listb.add(b);
+				}
 			}
-			
-			
 				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listb;
+		}catch (Exception e) {
+			logger.log(Level.SEVERE, "Error retrieving all brands", e);
 		}
+		
+		return listb;
+	}
 	
 	
 	// list all category
@@ -78,46 +73,39 @@ public class DAO {
 	public List<category> getAllcategory(){
 		List<category> listc = new ArrayList<category>();
 		
-		category c = null;
-		
 		try {
 			String sql = "select * from category";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				c = new category();
-				c.setCid(rs.getInt(1));
-				c.setCname(rs.getString(2));
-				listc.add(c);
+			try (PreparedStatement ps = conn.prepareStatement(sql);
+				 ResultSet rs = ps.executeQuery()) {
 				
+				while(rs.next())
+				{
+					category c = new category();
+					c.setCid(rs.getInt(1));
+					c.setCname(rs.getString(2));
+					listc.add(c);
+				}
 			}
-			
-			
 				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listc;
+		}catch (Exception e) {
+			logger.log(Level.SEVERE, "Error retrieving all categories", e);
 		}
+		
+		return listc;
+	}
 
 public int addproduct(HttpServletRequest request) {
     String path = "C://Users//calis//IdeaProjects//trabalho-Bug_Hunters//src//main//webapp//images";
     int a = 0;
+    
+    String pname = "";
+    int pprice = 0;
+    int pquantity = 0;
+    String pimage = "";
+    int bid = 0;
+    int cid = 0;
+
     try {
-        String pname = "";
-        int pprice = 0;
-        int pquantity = 0;
-        String pimage = "";
-        int bid = 0;
-        int cid = 0;
-
-        String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
-        PreparedStatement ps = conn.prepareStatement(sql);
-
         // Use o mock/injetado!
         List<FileItem> multiparts = servletFileUpload.parseRequest(request);
 
@@ -162,24 +150,34 @@ public int addproduct(HttpServletRequest request) {
         }
 
         if (!pimage.equals("Problem with upload")) {
-            ps.setString(1, pname);
-            ps.setInt(2, pprice);
-            ps.setInt(3, pquantity);
-            ps.setString(4, pimage);
-            ps.setInt(5, bid);
-            ps.setInt(6, cid);
-            ps.executeUpdate();
-            a = 1;
+            String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, pname);
+                ps.setInt(2, pprice);
+                ps.setInt(3, pquantity);
+                ps.setString(4, pimage);
+                ps.setInt(5, bid);
+                ps.setInt(6, cid);
+                ps.executeUpdate();
+                a = 1;
+            }
         }
 
-        logger.info("Product details - pname: " + pname + ", pprice: " + pprice + 
-                   ", pquantity: " + pquantity + ", pimage: " + pimage + 
-                   ", bid: " + bid + ", cid: " + cid);
-
-        conn.close();
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info(String.format("Product details - pname: %s, pprice: %d, pquantity: %d, pimage: %s, bid: %d, cid: %d", 
+                       pname, pprice, pquantity, pimage, bid, cid));
+        }
 
     } catch (Exception e) {
         logger.log(Level.SEVERE, "Error adding product", e);
+    } finally {
+        try {
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+            }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error closing connection", e);
+        }
     }
     return a;
 }
@@ -190,29 +188,24 @@ public List<customer> getAllCustomer()
 {
 	List<customer> list = new ArrayList <customer>();
 	
-	customer c = null;
-	
 	try {
 		String sql = "select * from customer";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		
-	ResultSet rs = ps.executeQuery();
-	
-	while(rs.next())
-	{
-		c = new customer();
-		c.setName(rs.getString(1));
-		c.setPassword(rs.getString(2));
-		c.setEmail_Id(rs.getString(3));
-		c.setContact_No(rs.getInt(4));
-		list.add(c);
-		
-	}
-	
-	
+		try (PreparedStatement ps = conn.prepareStatement(sql);
+			 ResultSet rs = ps.executeQuery()) {
+			
+			while(rs.next())
+			{
+				customer c = new customer();
+				c.setName(rs.getString(1));
+				c.setPassword(rs.getString(2));
+				c.setEmail_Id(rs.getString(3));
+				c.setContact_No(rs.getInt(4));
+				list.add(c);
+			}
+		}
 		
 	}catch (Exception e) {
-		e.printStackTrace();
+		logger.log(Level.SEVERE, "Error retrieving all customers", e);
 	}
 	
 	return list;
@@ -226,26 +219,22 @@ public List<customer> getAllCustomer()
 		boolean f = false;
 		
 		try {
-			
 			String sql = "delete from customer where Name = ? and Email_Id = ?";
 			
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ps.setString(1, c.getName());
-			ps.setString(2, c.getEmail_Id());
-			
-			
-			int i = ps.executeUpdate();
-			
-			
-			if(i == 1)
-			{
-				f = true;
+			try (PreparedStatement ps = conn.prepareStatement(sql)) {
+				ps.setString(1, c.getName());
+				ps.setString(2, c.getEmail_Id());
+				
+				int i = ps.executeUpdate();
+				
+				if(i == 1)
+				{
+					f = true;
+				}
 			}
 			
-			
 		}catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Error deleting customer", e);
 		}
 		
 		return f;
@@ -258,30 +247,26 @@ public List<customer> getCustomer(String eid)
 {
 	List<customer> list = new ArrayList <customer>();
 	
-	customer c = null;
-	
 	try {
 		String sql = "select * from customer where Email_Id=?";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		
-		ps.setString(1, eid);
-	ResultSet rs = ps.executeQuery();
-	
-	while(rs.next())
-	{
-		c = new customer();
-		c.setName(rs.getString(1));
-		c.setPassword(rs.getString(2));
-		c.setEmail_Id(rs.getString(3));
-		c.setContact_No(rs.getInt(4));
-		list.add(c);
-		
-	}
-	
-	
+		try (PreparedStatement ps = conn.prepareStatement(sql)) {
+			ps.setString(1, eid);
+			try (ResultSet rs = ps.executeQuery()) {
+				
+				while(rs.next())
+				{
+					customer c = new customer();
+					c.setName(rs.getString(1));
+					c.setPassword(rs.getString(2));
+					c.setEmail_Id(rs.getString(3));
+					c.setContact_No(rs.getInt(4));
+					list.add(c);
+				}
+			}
+		}
 		
 	}catch (Exception e) {
-		e.printStackTrace();
+		logger.log(Level.SEVERE, "Error retrieving customer by email", e);
 	}
 	
 	return list;
