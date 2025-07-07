@@ -93,90 +93,165 @@ public class DAO {
 
 public int addproduct(HttpServletRequest request) {
     String path = "C://Users//calis//IdeaProjects//trabalho-Bug_Hunters//src//main//webapp//images";
-    int a = 0;
+    int result = 0;
     
-    String pname = "";
-    int pprice = 0;
-    int pquantity = 0;
-    String pimage = "";
-    int bid = 0;
-    int cid = 0;
-
     try {
-        // Use o mock/injetado!
         List<FileItem> multiparts = servletFileUpload.parseRequest(request);
-
-        for (FileItem item1 : multiparts) {
-            if (item1.isFormField()) {
-                if (item1.getFieldName().equals("pname"))
-                    pname = item1.getString();
-
-                if (item1.getFieldName().equals("pprice"))
-                    pprice = Integer.parseInt(item1.getString());
-
-                if (item1.getFieldName().equals("pquantity"))
-                    pquantity = Integer.parseInt(item1.getString());
-
-                if (item1.getFieldName().equals("bname")) {
-                    if (item1.getString().equals("samsung"))
-                        bid = 1;
-                    if (item1.getString().equals("sony"))
-                        bid = 2;
-                    if (item1.getString().equals("lenovo"))
-                        bid = 3;
-                    if (item1.getString().equals("acer"))
-                        bid = 4;
-                    if (item1.getString().equals("onida"))
-                        bid = 5;
-                }
-                if (item1.getFieldName().equals("cname")) {
-                    if (item1.getString().equals("laptop"))
-                        cid = 1;
-                    if (item1.getString().equals("tv"))
-                        cid = 2;
-                    if (item1.getString().equals("mobile"))
-                        cid = 3;
-                    if (item1.getString().equals("watch"))
-                        cid = 4;
-                }
-            } else {
-                ArrayList<String> ext = new ArrayList<>();
-                ext.add(".jpg"); ext.add(".bmp"); ext.add(".jpeg"); ext.add(".png"); ext.add(".webp");
-                pimage = myUtilities.UploadFile(item1, path, ext);
-            }
-        }
-
-        if (!pimage.equals("Problem with upload")) {
-            String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, pname);
-                ps.setInt(2, pprice);
-                ps.setInt(3, pquantity);
-                ps.setString(4, pimage);
-                ps.setInt(5, bid);
-                ps.setInt(6, cid);
-                ps.executeUpdate();
-                a = 1;
-            }
-        }
-
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info(String.format("Product details - pname: %s, pprice: %d, pquantity: %d, pimage: %s, bid: %d, cid: %d", 
-                       pname, pprice, pquantity, pimage, bid, cid));
+        ProductData productData = extractProductData(multiparts, path);
+        
+        if (!productData.hasUploadError()) {
+            result = insertProduct(productData);
+            logProductDetails(productData);
         }
 
     } catch (Exception e) {
         logger.log(Level.SEVERE, "Error adding product", e);
     } finally {
-        try {
-            if (conn != null && !conn.isClosed()) {
-                conn.close();
-            }
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error closing connection", e);
+        closeConnection();
+    }
+    return result;
+}
+
+private ProductData extractProductData(List<FileItem> multiparts, String path) {
+    ProductData data = new ProductData();
+    
+    for (FileItem item : multiparts) {
+        if (item.isFormField()) {
+            processFormField(item, data);
+        } else {
+            processFileUpload(item, path, data);
         }
     }
-    return a;
+    
+    return data;
+}
+
+private void processFormField(FileItem item, ProductData data) {
+    String fieldName = item.getFieldName();
+    String fieldValue = item.getString();
+    
+    switch (fieldName) {
+        case "pname":
+            data.setPname(fieldValue);
+            break;
+        case "pprice":
+            data.setPprice(Integer.parseInt(fieldValue));
+            break;
+        case "pquantity":
+            data.setPquantity(Integer.parseInt(fieldValue));
+            break;
+        case "bname":
+            data.setBid(getBrandId(fieldValue));
+            break;
+        case "cname":
+            data.setCid(getCategoryId(fieldValue));
+            break;
+    }
+}
+
+private void processFileUpload(FileItem item, String path, ProductData data) {
+    ArrayList<String> ext = new ArrayList<>();
+    ext.add(".jpg"); 
+    ext.add(".bmp"); 
+    ext.add(".jpeg"); 
+    ext.add(".png"); 
+    ext.add(".webp");
+    
+    try {
+        String uploadResult = myUtilities.UploadFile(item, path, ext);
+        data.setPimage(uploadResult);
+    } catch (Exception e) {
+        logger.log(Level.SEVERE, "Error uploading file", e);
+        data.setPimage("Problem with upload");
+    }
+}
+
+private int getBrandId(String brandName) {
+    switch (brandName.toLowerCase()) {
+        case "samsung": return 1;
+        case "sony": return 2;
+        case "lenovo": return 3;
+        case "acer": return 4;
+        case "onida": return 5;
+        default: return 0;
+    }
+}
+
+private int getCategoryId(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+        case "laptop": return 1;
+        case "tv": return 2;
+        case "mobile": return 3;
+        case "watch": return 4;
+        default: return 0;
+    }
+}
+
+private int insertProduct(ProductData data) {
+    String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, data.getPname());
+        ps.setInt(2, data.getPprice());
+        ps.setInt(3, data.getPquantity());
+        ps.setString(4, data.getPimage());
+        ps.setInt(5, data.getBid());
+        ps.setInt(6, data.getCid());
+        ps.executeUpdate();
+        return 1;
+    } catch (Exception e) {
+        logger.log(Level.SEVERE, "Error inserting product", e);
+        return 0;
+    }
+}
+
+private void logProductDetails(ProductData data) {
+    if (logger.isLoggable(Level.INFO)) {
+        logger.info(String.format("Product details - pname: %s, pprice: %d, pquantity: %d, pimage: %s, bid: %d, cid: %d", 
+                   data.getPname(), data.getPprice(), data.getPquantity(), data.getPimage(), data.getBid(), data.getCid()));
+    }
+}
+
+private void closeConnection() {
+    try {
+        if (conn != null && !conn.isClosed()) {
+            conn.close();
+        }
+    } catch (Exception e) {
+        logger.log(Level.SEVERE, "Error closing connection", e);
+    }
+}
+
+// Classe interna para encapsular dados do produto
+private static class ProductData {
+    private String pname = "";
+    private int pprice = 0;
+    private int pquantity = 0;
+    private String pimage = "";
+    private int bid = 0;
+    private int cid = 0;
+    
+    public boolean hasUploadError() {
+        return "Problem with upload".equals(pimage);
+    }
+    
+    // Getters e Setters
+    public String getPname() { return pname; }
+    public void setPname(String pname) { this.pname = pname; }
+    
+    public int getPprice() { return pprice; }
+    public void setPprice(int pprice) { this.pprice = pprice; }
+    
+    public int getPquantity() { return pquantity; }
+    public void setPquantity(int pquantity) { this.pquantity = pquantity; }
+    
+    public String getPimage() { return pimage; }
+    public void setPimage(String pimage) { this.pimage = pimage; }
+    
+    public int getBid() { return bid; }
+    public void setBid(int bid) { this.bid = bid; }
+    
+    public int getCid() { return cid; }
+    public void setCid(int cid) { this.cid = cid; }
 }
 
 //display all customers
