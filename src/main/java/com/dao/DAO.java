@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -21,6 +23,8 @@ import com.entity.customer;
 import com.entity.brand;
 
 public class DAO {
+	private static final Logger logger = Logger.getLogger(DAO.class.getName());
+	
 	private Connection conn;
 	private MyUtilities myUtilities;
 	private ServletFileUpload servletFileUpload;
@@ -168,17 +172,14 @@ public int addproduct(HttpServletRequest request) {
             a = 1;
         }
 
-        System.out.println("pname: " + pname);
-        System.out.println("pprice: " + pprice);
-        System.out.println("pquantity: " + pquantity);
-        System.out.println("pimage: " + pimage);
-        System.out.println("bid: " + bid);
-        System.out.println("cid: " + cid);
+        logger.info("Product details - pname: " + pname + ", pprice: " + pprice + 
+                   ", pquantity: " + pquantity + ", pimage: " + pimage + 
+                   ", bid: " + bid + ", cid: " + cid);
 
         conn.close();
 
     } catch (Exception e) {
-        System.out.println(e);
+        logger.log(Level.SEVERE, "Error adding product", e);
     }
     return a;
 }
