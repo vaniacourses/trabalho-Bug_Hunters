@@ -44,7 +44,7 @@ public class DAO {
 		List<brand> listb = new ArrayList<>();
 		
 		try {
-			String sql = "select * from brand";
+			String sql = "select bid, bname from brand";
 			try (PreparedStatement ps = conn.prepareStatement(sql);
 				 ResultSet rs = ps.executeQuery()) {
 				
@@ -71,7 +71,7 @@ public class DAO {
 		List<category> listc = new ArrayList<>();
 		
 		try {
-			String sql = "select * from category";
+			String sql = "select cid, cname from category";
 			try (PreparedStatement ps = conn.prepareStatement(sql);
 				 ResultSet rs = ps.executeQuery()) {
 				
@@ -267,7 +267,7 @@ public List<customer> getAllCustomer()
 	List<customer> list = new ArrayList<>();
 	
 	try {
-		String sql = "select * from customer";
+		String sql = "select Name, Password, Email_Id, Contact_No from customer";
 		try (PreparedStatement ps = conn.prepareStatement(sql);
 			 ResultSet rs = ps.executeQuery()) {
 			
@@ -326,7 +326,7 @@ public List<customer> getCustomer(String eid)
 	List<customer> list = new ArrayList<>();
 	
 	try {
-		String sql = "select * from customer where Email_Id=?";
+		String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, eid);
 			try (ResultSet rs = ps.executeQuery()) {
