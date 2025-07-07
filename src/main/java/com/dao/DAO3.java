@@ -27,155 +27,40 @@ import com.entity.viewlist;
 import com.entity.watch;
 import com.utility.MyUtilities;
 
-
-
-public class DAO3 {
-	private Connection conn;
+public class DAO3 extends BaseDAO {
 	
 	public DAO3(Connection conn) {
-		this.conn = conn;
+		super(conn);
 	}
 	
 	
 	// view tv
 	
 	public List<tv> getAlltv(){
-		List<tv> listv = new ArrayList<tv>();
-		
-		tv v = null;
-		
-		try {
-			String sql = "select * from tv";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				v = new tv();
-				v.setBname(rs.getString(1));
-				v.setCname(rs.getString(2));
-				v.setPname(rs.getString(3));
-				v.setPprice(rs.getInt(4));
-				v.setPquantity(rs.getInt(5));
-				v.setPimage(rs.getString(6));
-				listv.add(v);
-				
-			}
-			
-			
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listv;
-		}
+		String sql = "select * from tv";
+		return executeQuery(sql, EntityMappers::mapToTv);
+	}
 		
 	// view laptop
 	
 		public List<laptop> getAlllaptop(){
-			List<laptop> listv = new ArrayList<laptop>();
-			
-			laptop v = null;
-			
-			try {
-				String sql = "select * from laptop";
-				PreparedStatement ps = conn.prepareStatement(sql);
-				
-				ResultSet rs = ps.executeQuery();
-				
-				while(rs.next())
-				{
-					v = new laptop();
-					v.setBname(rs.getString(1));
-					v.setCname(rs.getString(2));
-					v.setPname(rs.getString(3));
-					v.setPprice(rs.getInt(4));
-					v.setPquantity(rs.getInt(5));
-					v.setPimage(rs.getString(6));
-					listv.add(v);
-					
-				}
-				
-				
-					
-				}catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				return listv;
-			}
+			String sql = "select * from laptop";
+			return executeQuery(sql, EntityMappers::mapToLaptop);
+		}
 
 		// view mobile
 		
 			public List<mobile> getAllmobile(){
-				List<mobile> listv = new ArrayList<mobile>();
-				
-				mobile v = null;
-				
-				try {
-					String sql = "select * from mobile";
-					PreparedStatement ps = conn.prepareStatement(sql);
-					
-					ResultSet rs = ps.executeQuery();
-					
-					while(rs.next())
-					{
-						v = new mobile();
-						v.setBname(rs.getString(1));
-						v.setCname(rs.getString(2));
-						v.setPname(rs.getString(3));
-						v.setPprice(rs.getInt(4));
-						v.setPquantity(rs.getInt(5));
-						v.setPimage(rs.getString(6));
-						listv.add(v);
-						
-					}
-					
-					
-						
-					}catch (Exception e) {
-						e.printStackTrace();
-					}
-					
-					return listv;
-				}
+				String sql = "select * from mobile";
+				return executeQuery(sql, EntityMappers::mapToMobile);
+			}
 			
 			// view watch
 			
 			public List<watch> getAllwatch(){
-				List<watch> listv = new ArrayList<watch>();
-				
-				watch v = null;
-				
-				try {
-					String sql = "select * from watch";
-					PreparedStatement ps = conn.prepareStatement(sql);
-					
-					ResultSet rs = ps.executeQuery();
-					
-					while(rs.next())
-					{
-						v = new watch();
-						v.setBname(rs.getString(1));
-						v.setCname(rs.getString(2));
-						v.setPname(rs.getString(3));
-						v.setPprice(rs.getInt(4));
-						v.setPquantity(rs.getInt(5));
-						v.setPimage(rs.getString(6));
-						listv.add(v);
-						
-					}
-					
-					
-						
-					}catch (Exception e) {
-						e.printStackTrace();
-					}
-					
-					return listv;
-				}
+				String sql = "select * from watch";
+				return executeQuery(sql, EntityMappers::mapToWatch);
+			}
 
 
 	
@@ -187,93 +72,17 @@ public class DAO3 {
 			
 			public boolean checkaddtocartnull(cart c)
 			{
-				boolean f = false;
-			
-			
-				try{
-					String sql = "select * from cart  where Name =? and bname=? and cname =? and pname = ? and pprice = ? and pimage = ?";
-					PreparedStatement ps = conn.prepareStatement(sql);
-				
-				ps.setString(1,c.getName());
-				ps.setString(2, c.getBname());
-				ps.setString(3, c.getCname());
-				ps.setString(4, c.getPname());
-				ps.setInt(5, c.getPprice());
-				ps.setString(6, c.getPimage());
-				
-				ResultSet rs=ps.executeQuery();
-				if (rs.next()==true)
-					f = true;
-				else
-					f = false;
-				
-				}catch(Exception ex){
-				   System.out.println(ex.getMessage());
-				}
-
-			return f;
-					
+				return CartOperations.checkAddToCartWithUser(conn, c);
 			}
 			
 		// update cart	
 			public int updateaddtocartnull(cart c) {
-				
-				int i = 0;
-				try{
-					String sql = "update cart set pquantity = (pquantity + 1) where Name =? and bname = ? and cname = ? and pname = ? and pprice = ? and pimage = ?" ;
-					PreparedStatement ps = conn.prepareStatement(sql);
-				
-				ps.setString(1, c.getName());
-				ps.setString(2, c.getBname());
-				ps.setString(3, c.getCname());
-				ps.setString(4, c.getPname());
-				ps.setInt(5, c.getPprice());
-				ps.setString(6, c.getPimage());
-				
-				i = ps.executeUpdate();
-				if(i > 0)
-					i = 1;
-				
-				
-				}catch(Exception ex){
-				   System.out.println(ex.getMessage());
-				}
-
-			return i;
-				
-				
-				
+				return CartOperations.updateAddToCartWithUser(conn, c);
 			}
 			
 			//
 	public int addtocartnull(cart c) {
-				
-				int i = 0;
-				try{
-					String sql = "insert into cart values(?,?,?,?,?,?,?)" ;
-					PreparedStatement ps = conn.prepareStatement(sql);
-				
-				ps.setString(1, c.getName());
-				ps.setString(2, c.getBname());
-				ps.setString(3, c.getCname());
-				ps.setString(4, c.getPname());
-				ps.setInt(5, c.getPprice());
-				ps.setInt(6, c.getPquantity());
-				ps.setString(7, c.getPimage());
-				
-				i = ps.executeUpdate();
-				if(i > 0)
-					i = 1;
-				
-				
-				}catch(Exception ex){
-				   System.out.println(ex.getMessage());
-				}
-
-			return i;
-				
-				
-				
+				return CartOperations.addToCartWithUser(conn, c);
 			}
 		
 		
@@ -283,118 +92,28 @@ public class DAO3 {
 	
 	
 	public List<orders> getOrders(String o){
-		List<orders> listv = new ArrayList<orders>();
-		
-		orders v = null;
-		
-		try {
-			String sql = "select * from orders where Customer_Name = ?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ps.setString(1, o);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				v = new orders();
-				v.setOrder_Id(rs.getInt(1));
-				v.setCustomer_Name(rs.getString(2));
-				v.setCustomer_City(rs.getString(3));
-				v.setDate(rs.getString(4));
-				v.setTotal_Price(rs.getInt(5));
-				v.setStatus(rs.getString(6));
-				listv.add(v);
-				
-			}
-			
-			
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listv;
-		}
+		String sql = "select * from orders where Customer_Name = ?";
+		Object[] parameters = {o};
+		return executeQuery(sql, parameters, EntityMappers::mapToOrders);
+	}
 
 	
 	//view orders by Date
 		
 
 	public List<orders> getOrdersbydate(String d){
-		List<orders> listv = new ArrayList<orders>();
-		
-		orders v = null;
-		
-		try {
-			String sql = "select * from orders where Date = ?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ps.setString(1, d);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				v = new orders();
-				v.setOrder_Id(rs.getInt(1));
-				v.setCustomer_Name(rs.getString(2));
-				v.setCustomer_City(rs.getString(3));
-				v.setDate(rs.getString(4));
-				v.setTotal_Price(rs.getInt(5));
-				v.setStatus(rs.getString(6));
-				listv.add(v);
-				
-			}
-			
-			
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listv;
-		}
+		String sql = "select * from orders where Date = ?";
+		Object[] parameters = {d};
+		return executeQuery(sql, parameters, EntityMappers::mapToOrders);
+	}
 
 			//view order_details by date
 	
 	public List<order_details> getOrderdetails(String d){
-		List<order_details> listd = new ArrayList<order_details>();
-		
-		order_details v = null;
-		
-		try {
-			String sql = "select * from Order_details where Date = ?";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ps.setString(1, d);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				v = new order_details();
-				v.setDate(rs.getString(1));
-				v.setName(rs.getString(2));
-				v.setBname(rs.getString(3));
-				v.setCname(rs.getString(4));
-				v.setPname(rs.getString(5));
-				v.setPprice(rs.getInt(6));
-				v.setPquantity(rs.getInt(7));
-				v.setPimage(rs.getString(8));
-				
-				listd.add(v);
-				
-			}
-			
-			
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listd;
-		}
+		String sql = "select * from Order_details where Date = ?";
+		Object[] parameters = {d};
+		return executeQuery(sql, parameters, EntityMappers::mapToOrderDetails);
+	}
 
 	
 }

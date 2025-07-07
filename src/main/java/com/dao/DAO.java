@@ -13,82 +13,40 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
-
 import com.entity.category;
 import com.entity.customer;
 import com.utility.MyUtilities;
 import com.entity.brand;
 
-public class DAO {
-	private static final Logger logger = Logger.getLogger(DAO.class.getName());
-	
-	private Connection conn;
+public class DAO extends BaseDAO {
 	private MyUtilities myUtilities;
 	private ServletFileUpload servletFileUpload;
 	
 	// Construtor padrão (produção)
     public DAO(Connection conn) {
-        this.conn = conn;
+        super(conn);
         this.myUtilities = new MyUtilities();
     }
 
 	public DAO(Connection conn, MyUtilities myUtilities, ServletFileUpload servletFileUpload) {
-    this.conn = conn;
-    this.myUtilities = myUtilities;
-    this.servletFileUpload = servletFileUpload;
-}
+        super(conn);
+        this.myUtilities = myUtilities;
+        this.servletFileUpload = servletFileUpload;
+    }
 	
 	
 	// list all brand
 	public List<brand> getAllbrand(){
-		List<brand> listb = new ArrayList<>();
-		
-		try {
-			String sql = "select bid, bname from brand";
-			try (PreparedStatement ps = conn.prepareStatement(sql);
-				 ResultSet rs = ps.executeQuery()) {
-				
-				while(rs.next())
-				{
-					brand b = new brand();
-					b.setBid(rs.getInt(1));
-					b.setBname(rs.getString(2));
-					listb.add(b);
-				}
-			}
-				
-		}catch (Exception e) {
-			logger.log(Level.SEVERE, "Error retrieving all brands", e);
-		}
-		
-		return listb;
+		String sql = "select bid, bname from brand";
+		return executeQuery(sql, EntityMappers::mapToBrand);
 	}
 	
 	
 	// list all category
 	
 	public List<category> getAllcategory(){
-		List<category> listc = new ArrayList<>();
-		
-		try {
-			String sql = "select cid, cname from category";
-			try (PreparedStatement ps = conn.prepareStatement(sql);
-				 ResultSet rs = ps.executeQuery()) {
-				
-				while(rs.next())
-				{
-					category c = new category();
-					c.setCid(rs.getInt(1));
-					c.setCname(rs.getString(2));
-					listc.add(c);
-				}
-			}
-				
-		}catch (Exception e) {
-			logger.log(Level.SEVERE, "Error retrieving all categories", e);
-		}
-		
-		return listc;
+		String sql = "select cid, cname from category";
+		return executeQuery(sql, EntityMappers::mapToCategory);
 	}
 
 public int addproduct(HttpServletRequest request) {
@@ -217,15 +175,7 @@ private void logProductDetails(ProductData data) {
     }
 }
 
-private void closeConnection() {
-    try {
-        if (conn != null && !conn.isClosed()) {
-            conn.close();
-        }
-    } catch (Exception e) {
-        logger.log(Level.SEVERE, "Error closing connection", e);
-    }
-}
+
 
 // Classe interna para encapsular dados do produto
 private static class ProductData {
@@ -264,29 +214,8 @@ private static class ProductData {
 
 public List<customer> getAllCustomer()
 {
-	List<customer> list = new ArrayList<>();
-	
-	try {
-		String sql = "select Name, Password, Email_Id, Contact_No from customer";
-		try (PreparedStatement ps = conn.prepareStatement(sql);
-			 ResultSet rs = ps.executeQuery()) {
-			
-			while(rs.next())
-			{
-				customer c = new customer();
-				c.setName(rs.getString(1));
-				c.setPassword(rs.getString(2));
-				c.setEmail_Id(rs.getString(3));
-				c.setContact_No(rs.getInt(4));
-				list.add(c);
-			}
-		}
-		
-	}catch (Exception e) {
-		logger.log(Level.SEVERE, "Error retrieving all customers", e);
-	}
-	
-	return list;
+	String sql = "select Name, Password, Email_Id, Contact_No from customer";
+	return executeQuery(sql, EntityMappers::mapToCustomer);
 }
 
 
@@ -294,28 +223,10 @@ public List<customer> getAllCustomer()
 
 	public boolean deleteCustomer(customer c)
 	{
-		boolean f = false;
-		
-		try {
-			String sql = "delete from customer where Name = ? and Email_Id = ?";
-			
-			try (PreparedStatement ps = conn.prepareStatement(sql)) {
-				ps.setString(1, c.getName());
-				ps.setString(2, c.getEmail_Id());
-				
-				int i = ps.executeUpdate();
-				
-				if(i == 1)
-				{
-					f = true;
-				}
-			}
-			
-		}catch (Exception e) {
-			logger.log(Level.SEVERE, "Error deleting customer", e);
-		}
-		
-		return f;
+		String sql = "delete from customer where Name = ? and Email_Id = ?";
+		Object[] parameters = {c.getName(), c.getEmail_Id()};
+		int result = executeUpdate(sql, parameters);
+		return result == 1;
 	}
 
 	
@@ -323,31 +234,9 @@ public List<customer> getAllCustomer()
 
 public List<customer> getCustomer(String eid)
 {
-	List<customer> list = new ArrayList<>();
-	
-	try {
-		String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
-		try (PreparedStatement ps = conn.prepareStatement(sql)) {
-			ps.setString(1, eid);
-			try (ResultSet rs = ps.executeQuery()) {
-				
-				while(rs.next())
-				{
-					customer c = new customer();
-					c.setName(rs.getString(1));
-					c.setPassword(rs.getString(2));
-					c.setEmail_Id(rs.getString(3));
-					c.setContact_No(rs.getInt(4));
-					list.add(c);
-				}
-			}
-		}
-		
-	}catch (Exception e) {
-		logger.log(Level.SEVERE, "Error retrieving customer by email", e);
-	}
-	
-	return list;
+	String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
+	Object[] parameters = {eid};
+	return executeQuery(sql, parameters, EntityMappers::mapToCustomer);
 }
 	
 }
