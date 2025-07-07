@@ -17,8 +17,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import com.entity.category;
 import com.entity.customer;
 import com.utility.MyUtilities;
-import com.entity.Product;
-import com.entity.customer;
 import com.entity.brand;
 
 public class DAO {
