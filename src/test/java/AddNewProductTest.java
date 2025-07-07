@@ -111,7 +111,6 @@ public class AddNewProductTest {
     @Test
     void shouldNotAddProductWhenUploadFails() throws Exception {
     // Arrange
-    when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
 
     // Simula campos do formulário
     when(fileItemFormField1.isFormField()).thenReturn(true);
