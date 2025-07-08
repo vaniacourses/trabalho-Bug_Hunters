@@ -31,7 +31,7 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 - [Verificação de adição de item ao "carrinho"](https://docs.google.com/document/d/e/2PACX-1vRiXSeqF9upLPE8vMwhl3udrIxsjTUHNiDmUqB6Q2QEFhUVt8jY1T_K9PkCQl43LV3f3bnukUN_r6HT/pub)
 - [Visualização dos detalhes do produto](https://docs.google.com/document/d/e/2PACX-1vSaOrRfbRXk9mD4TWbu2GyppyJgFEyHu5bA5hPh_1cfgsYkxolSxqJVbkMyrJe1OFe9HX3Ns7NFGmCP/pub)
 
-- [Adicionar um pagamento em dinheiro com a opção de pagar na entrega e finalizar um pedido](https://docs.google.com/document/d/e/2PACX-1vSaOrRfbRXk9mD4TWbu2GyppyJgFEyHu5bA5hPh_1cfgsYkxolSxqJVbkMyrJe1OFe9HX3Ns7NFGmCP/pub)
+- [Adicionar um pagamento em dinheiro com a opção de pagar na entrega e finalizar um pedido](https://docs.google.com/document/d/1E_41Txj8uJANZUCJw7R20RmnQptgiBqvcovQkw_CIg4/edit?tab=t.0)
 
 
 
