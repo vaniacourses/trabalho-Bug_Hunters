@@ -5,216 +5,217 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-
 
 import com.entity.category;
 import com.entity.customer;
 import com.utility.MyUtilities;
-import com.entity.Product;
-import com.entity.customer;
 import com.entity.brand;
 
-public class DAO {
-	private Connection conn;
+public class DAO extends BaseDAO {
 	private MyUtilities myUtilities;
 	private ServletFileUpload servletFileUpload;
 	
 	// Construtor padrão (produção)
     public DAO(Connection conn) {
-        this.conn = conn;
+        super(conn);
         this.myUtilities = new MyUtilities();
     }
 
 	public DAO(Connection conn, MyUtilities myUtilities, ServletFileUpload servletFileUpload) {
-    this.conn = conn;
-    this.myUtilities = myUtilities;
-    this.servletFileUpload = servletFileUpload;
-}
+        super(conn);
+        this.myUtilities = myUtilities;
+        this.servletFileUpload = servletFileUpload;
+    }
 	
 	
 	// list all brand
 	public List<brand> getAllbrand(){
-		List<brand> listb = new ArrayList<brand>();
-		
-		brand b = null;
-		
-		try {
-			String sql = "select * from brand";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				b = new brand();
-				b.setBid(rs.getInt(1));
-				b.setBname(rs.getString(2));
-				listb.add(b);
-				
-			}
-			
-			
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listb;
-		}
+		String sql = "select bid, bname from brand";
+		return executeQuery(sql, EntityMappers::mapToBrand);
+	}
 	
 	
 	// list all category
 	
 	public List<category> getAllcategory(){
-		List<category> listc = new ArrayList<category>();
-		
-		category c = null;
-		
-		try {
-			String sql = "select * from category";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next())
-			{
-				c = new category();
-				c.setCid(rs.getInt(1));
-				c.setCname(rs.getString(2));
-				listc.add(c);
-				
-			}
-			
-			
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			return listc;
-		}
+		String sql = "select cid, cname from category";
+		return executeQuery(sql, EntityMappers::mapToCategory);
+	}
 
 public int addproduct(HttpServletRequest request) {
     String path = "C://Users//calis//IdeaProjects//trabalho-Bug_Hunters//src//main//webapp//images";
-    int a = 0;
+    int result = 0;
+    
     try {
-        String pname = "";
-        int pprice = 0;
-        int pquantity = 0;
-        String pimage = "";
-        int bid = 0;
-        int cid = 0;
-
-        String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
-        PreparedStatement ps = conn.prepareStatement(sql);
-
-        // Use o mock/injetado!
         List<FileItem> multiparts = servletFileUpload.parseRequest(request);
-
-        for (FileItem item1 : multiparts) {
-            if (item1.isFormField()) {
-                if (item1.getFieldName().equals("pname"))
-                    pname = item1.getString();
-
-                if (item1.getFieldName().equals("pprice"))
-                    pprice = Integer.parseInt(item1.getString());
-
-                if (item1.getFieldName().equals("pquantity"))
-                    pquantity = Integer.parseInt(item1.getString());
-
-                if (item1.getFieldName().equals("bname")) {
-                    if (item1.getString().equals("samsung"))
-                        bid = 1;
-                    if (item1.getString().equals("sony"))
-                        bid = 2;
-                    if (item1.getString().equals("lenovo"))
-                        bid = 3;
-                    if (item1.getString().equals("acer"))
-                        bid = 4;
-                    if (item1.getString().equals("onida"))
-                        bid = 5;
-                }
-                if (item1.getFieldName().equals("cname")) {
-                    if (item1.getString().equals("laptop"))
-                        cid = 1;
-                    if (item1.getString().equals("tv"))
-                        cid = 2;
-                    if (item1.getString().equals("mobile"))
-                        cid = 3;
-                    if (item1.getString().equals("watch"))
-                        cid = 4;
-                }
-            } else {
-                ArrayList<String> ext = new ArrayList<>();
-                ext.add(".jpg"); ext.add(".bmp"); ext.add(".jpeg"); ext.add(".png"); ext.add(".webp");
-                pimage = myUtilities.UploadFile(item1, path, ext);
-            }
+        ProductData productData = extractProductData(multiparts, path);
+        
+        if (!productData.hasUploadError()) {
+            result = insertProduct(productData);
+            logProductDetails(productData);
         }
-
-        if (!pimage.equals("Problem with upload")) {
-            ps.setString(1, pname);
-            ps.setInt(2, pprice);
-            ps.setInt(3, pquantity);
-            ps.setString(4, pimage);
-            ps.setInt(5, bid);
-            ps.setInt(6, cid);
-            ps.executeUpdate();
-            a = 1;
-        }
-
-        System.out.println("pname: " + pname);
-        System.out.println("pprice: " + pprice);
-        System.out.println("pquantity: " + pquantity);
-        System.out.println("pimage: " + pimage);
-        System.out.println("bid: " + bid);
-        System.out.println("cid: " + cid);
-
-        conn.close();
 
     } catch (Exception e) {
-        System.out.println(e);
+        logger.log(Level.SEVERE, "Error adding product", e);
+    } finally {
+        closeConnection();
     }
-    return a;
+    return result;
+}
+
+private ProductData extractProductData(List<FileItem> multiparts, String path) {
+    ProductData data = new ProductData();
+    
+    for (FileItem item : multiparts) {
+        if (item.isFormField()) {
+            processFormField(item, data);
+        } else {
+            processFileUpload(item, path, data);
+        }
+    }
+    
+    return data;
+}
+
+private void processFormField(FileItem item, ProductData data) {
+    String fieldName = item.getFieldName();
+    String fieldValue = item.getString();
+    
+    switch (fieldName) {
+        case "pname":
+            data.setPname(fieldValue);
+            break;
+        case "pprice":
+            data.setPprice(Integer.parseInt(fieldValue));
+            break;
+        case "pquantity":
+            data.setPquantity(Integer.parseInt(fieldValue));
+            break;
+        case "bname":
+            data.setBid(getBrandId(fieldValue));
+            break;
+        case "cname":
+            data.setCid(getCategoryId(fieldValue));
+            break;
+        default:
+            // Campo de formulário não reconhecido - log para debugging se necessário
+            if (logger.isLoggable(Level.FINE)) {
+                logger.fine("Unknown form field: " + fieldName + " with value: " + fieldValue);
+            }
+            break;
+    }
+}
+
+private void processFileUpload(FileItem item, String path, ProductData data) {
+    ArrayList<String> ext = new ArrayList<>();
+    ext.add(".jpg"); 
+    ext.add(".bmp"); 
+    ext.add(".jpeg"); 
+    ext.add(".png"); 
+    ext.add(".webp");
+    
+    try {
+        String uploadResult = myUtilities.UploadFile(item, path, ext);
+        data.setPimage(uploadResult);
+    } catch (Exception e) {
+        logger.log(Level.SEVERE, "Error uploading file", e);
+        data.setPimage("Problem with upload");
+    }
+}
+
+private int getBrandId(String brandName) {
+    switch (brandName.toLowerCase()) {
+        case "samsung": return 1;
+        case "sony": return 2;
+        case "lenovo": return 3;
+        case "acer": return 4;
+        case "onida": return 5;
+        default: return 0;
+    }
+}
+
+private int getCategoryId(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+        case "laptop": return 1;
+        case "tv": return 2;
+        case "mobile": return 3;
+        case "watch": return 4;
+        default: return 0;
+    }
+}
+
+private int insertProduct(ProductData data) {
+    String sql = "insert into product(pname,pprice,pquantity,pimage,bid,cid) values(?,?,?,?,?,?)";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, data.getPname());
+        ps.setInt(2, data.getPprice());
+        ps.setInt(3, data.getPquantity());
+        ps.setString(4, data.getPimage());
+        ps.setInt(5, data.getBid());
+        ps.setInt(6, data.getCid());
+        ps.executeUpdate();
+        return 1;
+    } catch (Exception e) {
+        logger.log(Level.SEVERE, "Error inserting product", e);
+        return 0;
+    }
+}
+
+private void logProductDetails(ProductData data) {
+    if (logger.isLoggable(Level.INFO)) {
+        logger.info(String.format("Product details - pname: %s, pprice: %d, pquantity: %d, pimage: %s, bid: %d, cid: %d", 
+                   data.getPname(), data.getPprice(), data.getPquantity(), data.getPimage(), data.getBid(), data.getCid()));
+    }
+}
+
+
+
+// Classe interna para encapsular dados do produto
+private static class ProductData {
+    private String pname = "";
+    private int pprice = 0;
+    private int pquantity = 0;
+    private String pimage = "";
+    private int bid = 0;
+    private int cid = 0;
+    
+    public boolean hasUploadError() {
+        return "Problem with upload".equals(pimage);
+    }
+    
+    // Getters e Setters
+    public String getPname() { return pname; }
+    public void setPname(String pname) { this.pname = pname; }
+    
+    public int getPprice() { return pprice; }
+    public void setPprice(int pprice) { this.pprice = pprice; }
+    
+    public int getPquantity() { return pquantity; }
+    public void setPquantity(int pquantity) { this.pquantity = pquantity; }
+    
+    public String getPimage() { return pimage; }
+    public void setPimage(String pimage) { this.pimage = pimage; }
+    
+    public int getBid() { return bid; }
+    public void setBid(int bid) { this.bid = bid; }
+    
+    public int getCid() { return cid; }
+    public void setCid(int cid) { this.cid = cid; }
 }
 
 //display all customers
 
 public List<customer> getAllCustomer()
 {
-	List<customer> list = new ArrayList <customer>();
-	
-	customer c = null;
-	
-	try {
-		String sql = "select * from customer";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		
-	ResultSet rs = ps.executeQuery();
-	
-	while(rs.next())
-	{
-		c = new customer();
-		c.setName(rs.getString(1));
-		c.setPassword(rs.getString(2));
-		c.setEmail_Id(rs.getString(3));
-		c.setContact_No(rs.getInt(4));
-		list.add(c);
-		
-	}
-	
-	
-		
-	}catch (Exception e) {
-		e.printStackTrace();
-	}
-	
-	return list;
+	String sql = "select Name, Password, Email_Id, Contact_No from customer";
+	return executeQuery(sql, EntityMappers::mapToCustomer);
 }
 
 
@@ -222,32 +223,10 @@ public List<customer> getAllCustomer()
 
 	public boolean deleteCustomer(customer c)
 	{
-		boolean f = false;
-		
-		try {
-			
-			String sql = "delete from customer where Name = ? and Email_Id = ?";
-			
-			PreparedStatement ps = conn.prepareStatement(sql);
-			
-			ps.setString(1, c.getName());
-			ps.setString(2, c.getEmail_Id());
-			
-			
-			int i = ps.executeUpdate();
-			
-			
-			if(i == 1)
-			{
-				f = true;
-			}
-			
-			
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return f;
+		String sql = "delete from customer where Name = ? and Email_Id = ?";
+		Object[] parameters = {c.getName(), c.getEmail_Id()};
+		int result = executeUpdate(sql, parameters);
+		return result == 1;
 	}
 
 	
@@ -255,35 +234,9 @@ public List<customer> getAllCustomer()
 
 public List<customer> getCustomer(String eid)
 {
-	List<customer> list = new ArrayList <customer>();
-	
-	customer c = null;
-	
-	try {
-		String sql = "select * from customer where Email_Id=?";
-		PreparedStatement ps = conn.prepareStatement(sql);
-		
-		ps.setString(1, eid);
-	ResultSet rs = ps.executeQuery();
-	
-	while(rs.next())
-	{
-		c = new customer();
-		c.setName(rs.getString(1));
-		c.setPassword(rs.getString(2));
-		c.setEmail_Id(rs.getString(3));
-		c.setContact_No(rs.getInt(4));
-		list.add(c);
-		
-	}
-	
-	
-		
-	}catch (Exception e) {
-		e.printStackTrace();
-	}
-	
-	return list;
+	String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
+	Object[] parameters = {eid};
+	return executeQuery(sql, parameters, EntityMappers::mapToCustomer);
 }
 	
 }
