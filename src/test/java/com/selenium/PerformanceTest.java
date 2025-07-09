@@ -111,6 +111,16 @@ public class PerformanceTest {
         // Performance requirement: Login process should complete within 4 seconds
         assertTrue(loginTime < 4000, "Login process should complete within 4 seconds. Actual: " + loginTime + "ms");
         
+        // Wait for page to load and refresh the home page object to avoid stale elements
+        try {
+            Thread.sleep(1000); // Give time for page to load
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        
+        // Refresh the home page object to get fresh elements
+        homePage = new HomePage(driver);
+        
         assertTrue(homePage.isViewAllProductButtonDisplayed(), "Should be redirected to home page after login");
     }
     
@@ -189,11 +199,17 @@ public class PerformanceTest {
             // Navigate to home
             homePage.navigateToHomePage();
             
+            // Refresh home page object to avoid stale elements
+            homePage = new HomePage(driver);
+            
             // Navigate to products
             productListPage = homePage.clickViewAllProduct();
             
             // Navigate back to home
             driver.navigate().back();
+            
+            // Refresh home page object again
+            homePage = new HomePage(driver);
             
             Instant end = Instant.now();
             long navigationTime = Duration.between(start, end).toMillis();
