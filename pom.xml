@@ -117,9 +117,11 @@
                 <configuration>
                     <targetClasses>
                         <param>com.servlet.addcustomer</param>
+                        <param>com.entity.contactus</param>
                     </targetClasses>
                     <targetTests>
                         <param>AddCustomerTest</param>
+                        <param>com.entity.ContactusTest</param>
                     </targetTests>
                 </configuration>
                 <dependencies>
