@@ -11,7 +11,7 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class CustomerLoginAndProductSelectionTest {
+public class AddCashPaymentAndOrderConfirmationTest {
     
     private static WebDriver driver;
     private static WebDriverWait wait;
