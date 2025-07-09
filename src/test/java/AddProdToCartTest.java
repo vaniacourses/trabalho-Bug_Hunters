@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import com.dao.DAO2;
 import com.entity.cart;
@@ -21,22 +22,26 @@ public class AddProdToCartTest {
         mockPreparedStatement = mock(PreparedStatement.class);
 
         when(mockConnection.prepareStatement(any(String.class))).thenReturn(mockPreparedStatement);
-
         dao = new DAO2(mockConnection);
+    }
+
+    private cart buildCart(
+            String bname, String cname, String pname,
+            Integer pprice, Integer pquantity, String pimage) {
+
+        cart mockCart = mock(cart.class);
+        when(mockCart.getBname()).thenReturn(bname);
+        when(mockCart.getCname()).thenReturn(cname);
+        when(mockCart.getPname()).thenReturn(pname);
+        when(mockCart.getPprice()).thenReturn(pprice);
+        when(mockCart.getPquantity()).thenReturn(pquantity);
+        when(mockCart.getPimage()).thenReturn(pimage);
+        return mockCart;
     }
 
     @Test
     public void testAddToCart_SuccessfulInsert_Returns1() throws Exception {
-        cart mockCart = mock(cart.class);
-
-        when(mockCart.getBname()).thenReturn("BookName");
-        when(mockCart.getCname()).thenReturn("CustomerName");
-        when(mockCart.getPname()).thenReturn("ProductName");
-        when(mockCart.getPprice()).thenReturn(100);
-        when(mockCart.getPquantity()).thenReturn(2);
-        when(mockCart.getPimage()).thenReturn("image.png");
-
-
+        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
         int result = dao.addtocartnull(mockCart);
@@ -47,15 +52,7 @@ public class AddProdToCartTest {
 
     @Test
     public void testAddToCart_InsertFails_Returns0() throws Exception {
-        cart mockCart = mock(cart.class);
-
-        when(mockCart.getBname()).thenReturn("BookName");
-        when(mockCart.getCname()).thenReturn("CustomerName");
-        when(mockCart.getPname()).thenReturn("ProductName");
-        when(mockCart.getPprice()).thenReturn(100);
-        when(mockCart.getPquantity()).thenReturn(2);
-        when(mockCart.getPimage()).thenReturn("image.png");
-
+        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
         when(mockPreparedStatement.executeUpdate()).thenReturn(0);
 
         int result = dao.addtocartnull(mockCart);
@@ -64,13 +61,68 @@ public class AddProdToCartTest {
     }
 
     @Test
-    public void testAddToCart_ExceptionThrown_Returns0() throws Exception {
-        cart mockCart = mock(cart.class);
+    public void testAddToCart_PrepareStatementException_Returns0() throws Exception {
+        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
 
-        when(mockConnection.prepareStatement(any())).thenThrow(new RuntimeException("DB error"));
+        when(mockConnection.prepareStatement(any())).thenThrow(new SQLException("Erro SQL"));
 
         int result = dao.addtocartnull(mockCart);
 
         assertEquals(0, result);
+    }
+
+    @Test
+    public void testAddToCart_SetParameterException_Returns0() throws Exception {
+        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
+
+        doThrow(new SQLException("Erro em setString")).when(mockPreparedStatement).setObject(eq(1), eq("Book"));
+
+        int result = dao.addtocartnull(mockCart);
+
+        assertEquals(0, result);
+    }
+
+    @Test
+    public void testAddToCart_NullValues() throws Exception {
+        cart mockCart = buildCart(null, null, null, null, null, null);
+
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        int result = dao.addtocartnull(mockCart);
+
+        assertEquals(1, result);
+    }
+
+    @Test
+    public void testAddToCart_VerifySetParameters() throws Exception {
+        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
+
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        dao.addtocartnull(mockCart);
+
+        verify(mockPreparedStatement).setObject(1, "Book");
+        verify(mockPreparedStatement).setObject(2, "Client");
+        verify(mockPreparedStatement).setObject(3, "Pen");
+        verify(mockPreparedStatement).setObject(4, 10);
+        verify(mockPreparedStatement).setObject(5, 2);
+        verify(mockPreparedStatement).setObject(6, "img.png");
+    }
+
+    @Test
+    public void testAddToCart_WithRealCartObject() throws Exception {
+        cart realCart = new cart();
+        realCart.setBname("Book");
+        realCart.setCname("Client");
+        realCart.setPname("Pen");
+        realCart.setPprice(50);
+        realCart.setPquantity(1);
+        realCart.setPimage("img.png");
+
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        int result = dao.addtocartnull(realCart);
+
+        assertEquals(1, result);
     }
 }
