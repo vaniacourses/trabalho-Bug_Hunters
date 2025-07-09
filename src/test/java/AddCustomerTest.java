@@ -346,4 +346,123 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         assertDoesNotThrow(() -> servlet.doGet(request, response));
     }
+
+    // --- Testes extras para matar mutantes sobreviventes do PITEST ---
+
+    // Testa limite inferior da idade (age = 18) para standard
+    @Test
+    void testNameNullStandardAge18() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(null);
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "18", "Brazil", "", "", "true");
+        assertEquals("NAME_REQUIRED_STANDARD_ADULT", result);
+    }
+
+    // Testa limite superior da idade (age = 65) para standard
+    @Test
+    void testNameNullStandardAge65() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(null);
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "65", "Brazil", "", "", "true");
+        assertEquals("NAME_REQUIRED_STANDARD_ADULT", result);
+    }
+
+    // Testa idade > 65 (age = 66) para standard, Brazil
+    @Test
+    void testNameNullStandardSeniorBrazil() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(null);
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "66", "Brazil", "", "", "true");
+        assertEquals("NAME_REQUIRED_STANDARD_SENIOR_BRAZIL", result);
+    }
+
+    // Testa idade > 65 (age = 66) para standard, outro país
+    @Test
+    void testNameNullStandardSeniorOther() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(null);
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "66", "USA", "", "", "true");
+        assertEquals("NAME_REQUIRED_STANDARD_SENIOR_OTHER", result);
+    }
+
+    // Testa nome de tamanho exatamente 3
+    @Test
+    void testNameLengthExactly3() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName("abc");
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "25", "Brazil", "", "", "true");
+        assertEquals("VALID", result);
+    }
+
+    // Testa nome de tamanho exatamente 50
+    @Test
+    void testNameLengthExactly50() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(new String(new char[50]).replace('\0', 'a'));
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "25", "Brazil", "", "", "true");
+        assertEquals("VALID", result);
+    }
+
+    // Testa idade exatamente 13
+    @Test
+    void testAgeExactly13() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName("ValidName");
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "13", "Brazil", "", "", "true");
+        assertEquals("AGE_MINOR_STANDARD_BRAZIL", result);
+    }
+
+    // Testa idade exatamente 18
+    @Test
+    void testAgeExactly18() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName("ValidName");
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "18", "Brazil", "", "", "true");
+        assertEquals("VALID", result);
+    }
+
+    // Testa idade exatamente 120
+    @Test
+    void testAgeExactly120() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName("ValidName");
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "120", "Brazil", "", "", "true");
+        assertEquals("VALID", result);
+    }
+
+    // Testa country diferente de Brazil para senior
+    @Test
+    void testNameNullStandardSeniorOtherCountry() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(null);
+        String result = servlet.validateCustomerData(ct, "pass", "standard", "70", "Argentina", "", "", "true");
+        assertEquals("NAME_REQUIRED_STANDARD_SENIOR_OTHER", result);
+    }
+
+    // Testa se o cookie criado tem maxAge correto
+    @Test
+    void testCookieMaxAge() throws Exception {
+        setupValidRequestParameters();
+        when(dao.checkcust2(any(customer.class))).thenReturn(false);
+        when(dao.addcustomer(any(customer.class))).thenReturn(1);
+        final Cookie[] cookieHolder = new Cookie[1];
+        doAnswer(invocation -> {
+            cookieHolder[0] = invocation.getArgument(0);
+            return null;
+        }).when(response).addCookie(any(Cookie.class));
+        addcustomer servlet = new addcustomer(dao);
+        servlet.doPost(request, response);
+        assertNotNull(cookieHolder[0]);
+        assertEquals(10, cookieHolder[0].getMaxAge());
+    }
 }
