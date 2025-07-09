@@ -6,8 +6,8 @@ public class cart {
 	private String bname;
 	private String cname;
 	private String pname;
-	private int pprice;
-	private int pquantity;
+	private Integer pprice;
+	private Integer pquantity;
 	private String pimage;
 	
 	
@@ -35,13 +35,13 @@ public class cart {
 	public void setPname(String pname) {
 		this.pname = pname;
 	}
-	public int getPprice() {
+	public Integer getPprice() {
 		return pprice;
 	}
 	public void setPprice(int pprice) {
 		this.pprice = pprice;
 	}
-	public int getPquantity() {
+	public Integer getPquantity() {
 		return pquantity;
 	}
 	public void setPquantity(int pquantity) {

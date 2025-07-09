@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class teste_conn {
     public static void main(String[] args) {
-        String url = "jdbc:mysql://localhost:3306/ecomerce";
+        String url = "jdbc:mysql://localhost:3308/ecomerce";
         String user = "root";
-        String password = "admin";
+        String password = "adminroot@";
 
         try {
             Connection conn = DriverManager.getConnection(url, user, password);
