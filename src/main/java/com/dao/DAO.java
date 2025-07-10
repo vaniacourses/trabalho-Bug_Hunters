@@ -52,12 +52,13 @@ public class DAO extends BaseDAO {
 public int addproduct(HttpServletRequest request) {
     String path = "C://Users//calis//IdeaProjects//trabalho-Bug_Hunters//src//main//webapp//images";
     int result = 0;
-    
+
     try {
         List<FileItem> multiparts = servletFileUpload.parseRequest(request);
         ProductData productData = extractProductData(multiparts, path);
-        
-        if (!productData.hasUploadError()) {
+
+        // ✅ Validação completa (upload, preço, quantidade e nome)
+        if (productData.isValid()) {
             result = insertProduct(productData);
             logProductDetails(productData);
         }
@@ -82,36 +83,54 @@ private ProductData extractProductData(List<FileItem> multiparts, String path) {
     }
     
     return data;
-}
-
-private void processFormField(FileItem item, ProductData data) {
+}private void processFormField(FileItem item, ProductData data) {
     String fieldName = item.getFieldName();
     String fieldValue = item.getString();
-    
-    switch (fieldName) {
-        case "pname":
-            data.setPname(fieldValue);
-            break;
-        case "pprice":
-            data.setPprice(Integer.parseInt(fieldValue));
-            break;
-        case "pquantity":
-            data.setPquantity(Integer.parseInt(fieldValue));
-            break;
-        case "bname":
-            data.setBid(getBrandId(fieldValue));
-            break;
-        case "cname":
-            data.setCid(getCategoryId(fieldValue));
-            break;
-        default:
-            // Campo de formulário não reconhecido - log para debugging se necessário
-            if (logger.isLoggable(Level.FINE)) {
-                logger.fine("Unknown form field: " + fieldName + " with value: " + fieldValue);
-            }
-            break;
+
+    try {
+        switch (fieldName) {
+            case "pname":
+                data.setPname(fieldValue);
+                break;
+
+            case "pprice":
+                int price = Integer.parseInt(fieldValue);
+                data.setPprice(price); // não seta erro aqui
+                break;
+
+            case "pquantity":
+                int quantity = Integer.parseInt(fieldValue);
+                data.setPquantity(quantity); // não seta erro aqui
+                break;
+
+            case "bname":
+                data.setBid(getBrandId(fieldValue));
+                break;
+
+            case "cname":
+                data.setCid(getCategoryId(fieldValue));
+                break;
+
+            default:
+                if (logger.isLoggable(Level.FINE)) {
+                    logger.fine("Unknown form field: " + fieldName + " with value: " + fieldValue);
+                }
+                break;
+        }
+    } catch (NumberFormatException e) {
+        // Se der erro na conversão, seta zero para invalidar o dado
+        switch (fieldName) {
+            case "pprice":
+                data.setPprice(0);
+                break;
+            case "pquantity":
+                data.setPquantity(0);
+                break;
+        }
     }
 }
+
+
 
 private void processFileUpload(FileItem item, String path, ProductData data) {
     ArrayList<String> ext = new ArrayList<>();
@@ -185,31 +204,49 @@ private static class ProductData {
     private String pimage = "";
     private int bid = 0;
     private int cid = 0;
-    
+
+    // Erro conhecido de upload
     public boolean hasUploadError() {
         return "Problem with upload".equals(pimage);
     }
-    
+
+    // Validações adicionais de limites
+    public boolean hasInvalidPrice() {
+        return pprice < 1;
+    }
+
+    public boolean hasInvalidQuantity() {
+        return pquantity < 1;
+    }
+
+    public boolean hasInvalidName() {
+        return pname == null || pname.trim().isEmpty();
+    }
+
+    // Método que indica se os dados são válidos
+    public boolean isValid() {
+        return !hasUploadError() && !hasInvalidPrice() && !hasInvalidQuantity() && !hasInvalidName();
+    }
+
     // Getters e Setters
     public String getPname() { return pname; }
     public void setPname(String pname) { this.pname = pname; }
-    
+
     public int getPprice() { return pprice; }
     public void setPprice(int pprice) { this.pprice = pprice; }
-    
+
     public int getPquantity() { return pquantity; }
     public void setPquantity(int pquantity) { this.pquantity = pquantity; }
-    
+
     public String getPimage() { return pimage; }
     public void setPimage(String pimage) { this.pimage = pimage; }
-    
+
     public int getBid() { return bid; }
     public void setBid(int bid) { this.bid = bid; }
-    
+
     public int getCid() { return cid; }
     public void setCid(int cid) { this.cid = cid; }
 }
-
 //display all customers
 
 public List<customer> getAllCustomer()
