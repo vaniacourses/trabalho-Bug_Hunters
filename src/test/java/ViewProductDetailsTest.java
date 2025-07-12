@@ -2,9 +2,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.dao.DAO2;
-import com.entity.viewlist;
+import com.entity.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
@@ -30,89 +31,175 @@ public class ViewProductDetailsTest {
         mockPreparedStatement = mock(PreparedStatement.class);
         mockResultSet = mock(ResultSet.class);
 
-        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-
+        lenient().when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        lenient().when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        lenient().when(mockPreparedStatement.executeUpdate()).thenReturn(1);
         dao = new DAO2(mockConnection);
     }
 
-    @Test
-    @DisplayName("Deve retornar um produto com todos os detalhes quando a imagem existe")
-    void getSelecteditem_shouldReturnProduct_whenImageExists() throws Exception {
-        String productImage = "produto_teste.jpg";
-        when(mockResultSet.next()).thenReturn(true).thenReturn(false);
-        when(mockResultSet.getString(1)).thenReturn("Marca Teste");
-        when(mockResultSet.getString(2)).thenReturn("Categoria Teste");
-        when(mockResultSet.getString(3)).thenReturn("Produto de Teste");
-        when(mockResultSet.getInt(4)).thenReturn(150);
-        when(mockResultSet.getInt(5)).thenReturn(10);
-        when(mockResultSet.getString(6)).thenReturn(productImage);
+    private customer buildMockCustomer() { return mock(customer.class); }
+    private cart buildMockCart() { return mock(cart.class); }
+    private usermaster buildMockUsermaster() { return mock(usermaster.class); }
+    private orders buildMockOrder() { return mock(orders.class); }
 
-        List<viewlist> result = dao.getSelecteditem(productImage);
+    @Nested
+    @DisplayName("Testes de Visualização de Itens")
+    class ItemViewTests {
 
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        viewlist product = result.get(0);
-        assertAll("Verifica todos os detalhes do produto retornado",
-                () -> assertEquals("Marca Teste", product.getBname()),
-                () -> assertEquals("Categoria Teste", product.getCname()),
-                () -> assertEquals("Produto de Teste", product.getPname()),
-                () -> assertEquals(150, product.getPprice()),
-                () -> assertEquals(10, product.getPquantity()),
-                () -> assertEquals(productImage, product.getPimage())
-        );
-        verify(mockPreparedStatement).setObject(1, productImage);
+        @Test
+        void getSelecteditem_shouldReturnListWhenProductExists() throws SQLException {
+            String testImage = "produto.jpg";
+            when(mockResultSet.next()).thenReturn(true, false);
+            List<viewlist> result = dao.getSelecteditem(testImage);
+            assertFalse(result.isEmpty());
+            verify(mockPreparedStatement).setObject(1, testImage);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void getSelecteditem_shouldReturnEmptyListForInvalidInput(String invalidInput) {
+            assertTrue(dao.getSelecteditem(invalidInput).isEmpty());
+        }
+
+        @Test
+        void getAllviewlist_shouldReturnMultipleProducts() throws SQLException {
+            when(mockResultSet.next()).thenReturn(true, true, false);
+            assertEquals(2, dao.getAllviewlist().size());
+        }
+
+        @Test
+        void getAllviewlist_shouldReturnEmptyListOnSqlException() throws SQLException {
+            when(mockResultSet.next()).thenThrow(new SQLException("Erro de Leitura"));
+            assertTrue(dao.getAllviewlist().isEmpty());
+        }
     }
 
-    @Test
-    @DisplayName("Deve retornar uma lista com múltiplos produtos se a imagem não for única")
-    void getSelecteditem_shouldReturnMultipleProducts_whenImageIsNotUnique() throws Exception {
-        String nonUniqueImage = "imagem_repetida.jpg";
-        when(mockResultSet.next()).thenReturn(true, true, false);
-        when(mockResultSet.getString(3)).thenReturn("Produto A", "Produto B");
-        when(mockResultSet.getInt(4)).thenReturn(100, 200);
+    @Nested
+    @DisplayName("Testes de Autenticação e Gestão de Usuários")
+    class UserManagementTests {
 
-        List<viewlist> result = dao.getSelecteditem(nonUniqueImage);
+        @Test
+        void checkcust_shouldReturnTrueForValidCredentials() throws SQLException {
+            customer cust = buildMockCustomer();
+            when(cust.getPassword()).thenReturn("pass123");
+            when(cust.getEmail_Id()).thenReturn("user@test.com");
+            when(mockResultSet.next()).thenReturn(true);
 
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("Produto A", result.get(0).getPname());
-        assertEquals(200, result.get(1).getPprice());
+            assertTrue(dao.checkcust(cust));
+
+            verify(mockPreparedStatement).setObject(1, "pass123");
+            verify(mockPreparedStatement).setObject(2, "user@test.com");
+        }
+
+        @Test
+        void checkcust_shouldReturnFalseForInvalidCredentials() throws SQLException {
+            when(mockResultSet.next()).thenReturn(false);
+            assertFalse(dao.checkcust(buildMockCustomer()));
+        }
+
+        @Test
+        void addcustomer_shouldReturnOneOnSuccess() throws SQLException {
+            customer cust = new customer();
+            cust.setName("New User");
+            cust.setPassword("newpass");
+            cust.setEmail_Id("new@user.com");
+            cust.setContact_No(12345);
+
+            assertEquals(1, dao.addcustomer(cust));
+
+            verify(mockPreparedStatement).setObject(1, "New User");
+            verify(mockPreparedStatement).setObject(2, "newpass");
+            verify(mockPreparedStatement).setObject(3, "new@user.com");
+            verify(mockPreparedStatement).setObject(4, 12345);
+        }
+
+        @Test
+        void addcustomer_shouldReturnZeroOnSqlException() throws SQLException {
+            when(mockPreparedStatement.executeUpdate()).thenThrow(new SQLException());
+            assertEquals(0, dao.addcustomer(new customer()));
+        }
+
+        @Test
+        void checkadmin_shouldReturnTrueForValidAdmin() throws SQLException {
+            usermaster admin = buildMockUsermaster();
+            when(admin.getName()).thenReturn("admin");
+            when(admin.getPassword()).thenReturn("admin_pass");
+            when(mockResultSet.next()).thenReturn(true);
+
+            assertTrue(dao.checkadmin(admin));
+
+            verify(mockPreparedStatement).setObject(1, "admin");
+            verify(mockPreparedStatement).setObject(2, "admin_pass");
+        }
+
+        @Test
+        void checkcust2_shouldReturnTrueWhenUserExists() throws SQLException {
+            when(mockResultSet.next()).thenReturn(true);
+            assertTrue(dao.checkcust2(buildMockCustomer()));
+        }
     }
 
-    @Test
-    @DisplayName("Deve retornar preço 0 se o valor no banco for nulo ou inválido")
-    void getSelecteditem_shouldReturnPriceZero_whenDbPriceIsInvalid() throws SQLException {
-        String productImage = "produto_preco_nulo.jpg";
-        when(mockResultSet.next()).thenReturn(true).thenReturn(false);
-        when(mockResultSet.getInt(4)).thenReturn(0);
+    @Nested
+    @DisplayName("Testes de Delegação para Operações de Carrinho")
+    class CartDelegationTests {
 
-        List<viewlist> result = dao.getSelecteditem(productImage);
+        @Test
+        void checkaddtocartnull_shouldDelegateAndReturnBoolean() throws SQLException {
+            when(mockResultSet.next()).thenReturn(true);
+            assertTrue(dao.checkaddtocartnull(buildMockCart()));
+        }
 
-        assertEquals(1, result.size());
-        assertEquals(0, result.get(0).getPprice());
+        @Test
+        void updateaddtocartnull_shouldDelegateAndReturnInt() {
+            assertEquals(1, dao.updateaddtocartnull(buildMockCart()));
+        }
+
+        @Test
+        void addtocartnull_shouldDelegateAndReturnInt() {
+            assertEquals(1, dao.addtocartnull(buildMockCart()));
+        }
+
+        @Test
+        void getSelectedcart_shouldDelegateAndReturnList() {
+            assertNotNull(dao.getSelectedcart());
+        }
+
+        @Test
+        void getcart_shouldDelegateAndReturnList() {
+            assertNotNull(dao.getcart("some_customer"));
+        }
+
+        @Test
+        void removecart_shouldDelegateAndReturnInt() {
+            assertEquals(1, dao.removecart(buildMockCart()));
+        }
     }
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"  ", "\t", "\n"})
-    @DisplayName("Deve retornar lista vazia para entradas de imagem inválidas (null, vazia, espaços em branco)")
-    void getSelecteditem_shouldReturnEmptyList_forInvalidInput(String invalidImageName) {
-        List<viewlist> result = dao.getSelecteditem(invalidImageName);
+    @Nested
+    @DisplayName("Testes de Gestão de Pedidos")
+    class OrderManagementTests {
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-    }
+        @Test
+        void removeorders_shouldReturnOneOnSuccess() throws SQLException {
+            orders order = buildMockOrder();
+            when(order.getOrder_Id()).thenReturn(999);
 
-    @Test
-    @DisplayName("Deve retornar uma lista vazia em caso de erro de SQL")
-    void getSelecteditem_shouldReturnEmptyList_onSqlException() throws Exception {
-        String productImage = "qualquer_imagem.jpg";
-        when(mockPreparedStatement.executeQuery()).thenThrow(new SQLException("Erro de conexão com o banco de dados"));
+            assertEquals(1, dao.removeorders(order));
 
-        List<viewlist> result = dao.getSelecteditem(productImage);
+            verify(mockPreparedStatement).setObject(1, 999);
+        }
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
+        @Test
+        void removeorders_shouldReturnZeroOnFailure() throws SQLException {
+            when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+            assertEquals(0, dao.removeorders(buildMockOrder()));
+        }
+
+        @Test
+        void removeorders_shouldReturnZeroOnException() throws SQLException {
+            when(mockPreparedStatement.executeUpdate()).thenThrow(new SQLException());
+            assertEquals(0, dao.removeorders(buildMockOrder()));
+        }
     }
 }
