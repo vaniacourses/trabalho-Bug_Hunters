@@ -126,6 +126,9 @@ private ProductData extractProductData(List<FileItem> multiparts, String path) {
             case "pquantity":
                 data.setPquantity(0);
                 break;
+            default:
+                // Ignore other fields that don't need number conversion
+                break;
         }
     }
 }
