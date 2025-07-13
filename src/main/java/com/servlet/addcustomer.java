@@ -112,6 +112,7 @@ public class addcustomer extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		// This servlet does not handle GET requests. Method intentionally left empty.
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
