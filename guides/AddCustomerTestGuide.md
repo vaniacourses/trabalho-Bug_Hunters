@@ -76,6 +76,12 @@ testAgeExactly121()    // Deve falhar se mutante sobreviver
 
 ---
 
+### **Evidência Pitest**
+![Pitest Imagem](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/pitestEvidencia.png)
+
+
+---
+
 ## 🔍 Padrões de Teste Identificados
 
 ### **1. Padrão Arrange-Act-Assert (AAA)**
