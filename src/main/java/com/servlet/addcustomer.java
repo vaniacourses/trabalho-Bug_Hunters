@@ -69,25 +69,37 @@ public class addcustomer extends HttpServlet {
 
 	private String validateNameEmpty(CustomerValidationContext ctx) {
 		if (PREMIUM.equals(ctx.getUserType())) {
-			if (BRAZIL.equals(ctx.getCountry())) {
-				if ("Rio de Janeiro".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_RJ";
-				if ("São Paulo".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_SP";
-				return "NAME_REQUIRED_PREMIUM_BRAZIL_OTHER";
-			}
-			if ("USA".equals(ctx.getCountry())) {
-				if (ctx.getZipCode().length() == 5) return "NAME_REQUIRED_PREMIUM_USA_5DIGIT";
-				if (ctx.getZipCode().length() == 9) return "NAME_REQUIRED_PREMIUM_USA_9DIGIT";
-				return "NAME_REQUIRED_PREMIUM_USA_INVALID";
-			}
-			return "NAME_REQUIRED_PREMIUM_OTHER";
+			return validateNameEmptyPremium(ctx);
 		}
 		if ("standard".equals(ctx.getUserType())) {
-			int ageInt = Integer.parseInt(ctx.getAge());
-			if (ageInt < 18) return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
-			if (ageInt > 65) return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";
-			return "NAME_REQUIRED_STANDARD_ADULT";
+			return validateNameEmptyStandard(ctx);
 		}
 		return "NAME_REQUIRED_UNKNOWN_TYPE";
+	}
+
+	private String validateNameEmptyPremium(CustomerValidationContext ctx) {
+		if (BRAZIL.equals(ctx.getCountry())) {
+			if ("Rio de Janeiro".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_RJ";
+			if ("São Paulo".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_SP";
+			return "NAME_REQUIRED_PREMIUM_BRAZIL_OTHER";
+		}
+		if ("USA".equals(ctx.getCountry())) {
+			if (ctx.getZipCode().length() == 5) return "NAME_REQUIRED_PREMIUM_USA_5DIGIT";
+			if (ctx.getZipCode().length() == 9) return "NAME_REQUIRED_PREMIUM_USA_9DIGIT";
+			return "NAME_REQUIRED_PREMIUM_USA_INVALID";
+		}
+		return "NAME_REQUIRED_PREMIUM_OTHER";
+	}
+
+	private String validateNameEmptyStandard(CustomerValidationContext ctx) {
+		int ageInt = Integer.parseInt(ctx.getAge());
+		if (ageInt < 18) {
+			return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
+		}
+		if (ageInt > 65) {
+			return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";
+		}
+		return "NAME_REQUIRED_STANDARD_ADULT";
 	}
 
 	private String validateAge(String age, String userType, String country) {
