@@ -48,6 +48,8 @@ projeto
 ## Diagramas de Classe
 - [AddCustomerTest.java](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/Diagram/AddCustomerTest.png?raw=true)
 
+## Guia Detalhado Classes de Teste
+- [AddCustomerTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddCustomerTestGuide.md)
 
 ## Stack utilizada
 
