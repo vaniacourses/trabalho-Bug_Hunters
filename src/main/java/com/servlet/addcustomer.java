@@ -42,10 +42,12 @@ public class addcustomer extends HttpServlet {
 
 	private static final String BRAZIL = "Brazil";
 	private static final String PREMIUM = "premium";
+	private static final String FAIL_JSP = "fail.jsp";
+	private static final String VALID = "VALID";
 
 	public String validateCustomerData(customer customerObj, CustomerValidationContext ctx) {
 		String validationResult = validateName(customerObj, ctx);
-		if ("VALID".equals(validationResult)) {
+		if (VALID.equals(validationResult)) {
 			validationResult = validateAge(ctx.getAge(), ctx.getUserType(), ctx.getCountry());
 		}
 		return validationResult;
@@ -77,11 +79,10 @@ public class addcustomer extends HttpServlet {
 		}
 		if (name.length() < 3) return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_SHORT_PREMIUM" : "NAME_TOO_SHORT_STANDARD";
 		if (name.length() > 50) return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_LONG_PREMIUM" : "NAME_TOO_LONG_STANDARD";
-		return "VALID";
+		return VALID;
 	}
 
 	private String validateAge(String age, String userType, String country) {
-		if (age == null || age.trim().isEmpty()) return PREMIUM.equals(userType) ? "AGE_REQUIRED_PREMIUM" : "AGE_REQUIRED_STANDARD";
 		try {
 			int ageValue = Integer.parseInt(age);
 			if (ageValue < 13) return PREMIUM.equals(userType) ? "AGE_TOO_YOUNG_PREMIUM" : "AGE_TOO_YOUNG_STANDARD";
@@ -93,7 +94,7 @@ public class addcustomer extends HttpServlet {
 		} catch (NumberFormatException e) {
 			return PREMIUM.equals(userType) ? "AGE_INVALID_FORMAT_PREMIUM" : "AGE_INVALID_FORMAT_STANDARD";
 		}
-		return "VALID";
+		return VALID;
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(addcustomer.class.getName());
@@ -131,14 +132,14 @@ public class addcustomer extends HttpServlet {
 			customerObj.setContact_No(Integer.parseInt(contactNo));
 		} catch (NumberFormatException nfe) {
 			LOGGER.severe("Invalid contact number format: " + contactNo);
-			response.sendRedirect("fail.jsp");
+			response.sendRedirect(FAIL_JSP);
 			return;
 		}
 
 		try {
 			DAO2 dao = new DAO2(DBConnect.getConn());
 			if (dao.checkcust2(customerObj)) {
-				response.sendRedirect("fail.jsp");
+				response.sendRedirect(FAIL_JSP);
 			} else {
 				if (dao.addcustomer(customerObj) > 0) {
 					Cookie creg = new Cookie("creg", "creg");
@@ -146,7 +147,7 @@ public class addcustomer extends HttpServlet {
 					response.addCookie(creg);
 					response.sendRedirect("customerlogin.jsp?Total=" + total + "&CusName=" + customerName);
 				} else {
-					response.sendRedirect("fail.jsp");
+					response.sendRedirect(FAIL_JSP);
 				}
 			}
 		} catch (Exception ex) {
