@@ -113,18 +113,30 @@ public class addcustomer extends HttpServlet {
 			return PREMIUM.equals(userType) ? "AGE_INVALID_FORMAT_PREMIUM" : "AGE_INVALID_FORMAT_STANDARD";
 		}
 		if (ageValue < 13) {
-			return PREMIUM.equals(userType) ? "AGE_TOO_YOUNG_PREMIUM" : "AGE_TOO_YOUNG_STANDARD";
+			return getAgeTooYoungMessage(userType);
 		}
 		if (ageValue > 120) {
-			return PREMIUM.equals(userType) ? "AGE_TOO_OLD_PREMIUM" : "AGE_TOO_OLD_STANDARD";
+			return getAgeTooOldMessage(userType);
 		}
 		if (ageValue < 18) {
-			if (PREMIUM.equals(userType)) {
-				return BRAZIL.equals(country) ? "AGE_MINOR_PREMIUM_BRAZIL" : "AGE_MINOR_PREMIUM_OTHER";
-			}
-			return BRAZIL.equals(country) ? "AGE_MINOR_STANDARD_BRAZIL" : "AGE_MINOR_STANDARD_OTHER";
+			return getAgeMinorMessage(userType, country);
 		}
 		return VALID;
+	}
+
+	private String getAgeTooYoungMessage(String userType) {
+		return PREMIUM.equals(userType) ? "AGE_TOO_YOUNG_PREMIUM" : "AGE_TOO_YOUNG_STANDARD";
+	}
+
+	private String getAgeTooOldMessage(String userType) {
+		return PREMIUM.equals(userType) ? "AGE_TOO_OLD_PREMIUM" : "AGE_TOO_OLD_STANDARD";
+	}
+
+	private String getAgeMinorMessage(String userType, String country) {
+		if (PREMIUM.equals(userType)) {
+			return BRAZIL.equals(country) ? "AGE_MINOR_PREMIUM_BRAZIL" : "AGE_MINOR_PREMIUM_OTHER";
+		}
+		return BRAZIL.equals(country) ? "AGE_MINOR_STANDARD_BRAZIL" : "AGE_MINOR_STANDARD_OTHER";
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(addcustomer.class.getName());
