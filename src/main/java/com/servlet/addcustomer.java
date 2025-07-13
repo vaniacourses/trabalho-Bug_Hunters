@@ -38,11 +38,11 @@ public class addcustomer extends HttpServlet {
 		this.dao2 = dao2;
 	}
 
-	public String validateCustomerData(customer ct, String confirmPassword, String userType, String age, String country, String city, String zipCode, String termsAccepted) {
+	public String validateCustomerData(customer customerObj, String confirmPassword, String userType, String age, String country, String city, String zipCode, String termsAccepted) {
 		String validationResult = "VALID";
 		
 		// Validação do nome
-		if (ct.getName() == null || ct.getName().trim().isEmpty()) {
+		if (customerObj.getName() == null || customerObj.getName().trim().isEmpty()) {
 			if (userType.equals("premium")) {
 				if (country.equals("Brazil")) {
 					if (city.equals("Rio de Janeiro")) {
@@ -82,13 +82,13 @@ public class addcustomer extends HttpServlet {
 			} else {
 				validationResult = "NAME_REQUIRED_UNKNOWN_TYPE";
 			}
-		} else if (ct.getName().length() < 3) {
+		} else if (customerObj.getName().length() < 3) {
 			if (userType.equals("premium")) {
 				validationResult = "NAME_TOO_SHORT_PREMIUM";
 			} else {
 				validationResult = "NAME_TOO_SHORT_STANDARD";
 			}
-		} else if (ct.getName().length() > 50) {
+		} else if (customerObj.getName().length() > 50) {
 			if (userType.equals("premium")) {
 				validationResult = "NAME_TOO_LONG_PREMIUM";
 			} else {
@@ -156,39 +156,39 @@ public class addcustomer extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		String UsernameD = request.getParameter("Username");
-		String Username = UsernameD.trim();
+		String usernameRaw = request.getParameter("Username");
+		String username = usernameRaw.trim();
 
-		String PasswordD = request.getParameter("Password");
-		String Password = PasswordD.trim();
+		String passwordRaw = request.getParameter("Password");
+		String password = passwordRaw.trim();
 
-		String Email_IdD = request.getParameter("Email_Id");
-		String Email_Id = Email_IdD.trim();
+		String emailIdRaw = request.getParameter("Email_Id");
+		String emailId = emailIdRaw.trim();
 
-		String Contact_NoD = request.getParameter("Contact_No");
-		String Contact_No = Contact_NoD.trim();
+		String contactNoRaw = request.getParameter("Contact_No");
+		String contactNo = contactNoRaw.trim();
 
-		String Total6 = request.getParameter("Total");
-		String CusName6 = request.getParameter("CusName");
+		String total = request.getParameter("Total");
+		String customerName = request.getParameter("CusName");
 
-		customer ct = new customer();
-		ct.setName(Username);
-		ct.setPassword(Password);
-		ct.setEmail_Id(Email_Id);
-		ct.setContact_No(Integer.parseInt(Contact_No));
+		customer customerObj = new customer();
+		customerObj.setName(username);
+		customerObj.setPassword(password);
+		customerObj.setEmail_Id(emailId);
+		customerObj.setContact_No(Integer.parseInt(contactNo));
 
 		try {
 			// Use o DAO2 injetado se existir, senão crie um novo
 			DAO2 dao = (this.dao2 != null) ? this.dao2 : new DAO2(DBConnect.getConn());
 
-			if (dao.checkcust2(ct)) {
+			if (dao.checkcust2(customerObj)) {
 				response.sendRedirect("fail.jsp");
 			} else {
-				if (dao.addcustomer(ct) > 0) {
+				if (dao.addcustomer(customerObj) > 0) {
 					Cookie creg = new Cookie("creg", "creg");
 					creg.setMaxAge(10);
 					response.addCookie(creg);
-					response.sendRedirect("customerlogin.jsp?Total=" + Total6 + "&CusName=" + CusName6);
+					response.sendRedirect("customerlogin.jsp?Total=" + total + "&CusName=" + customerName);
 				} else {
 					response.sendRedirect("fail.jsp");
 				}
