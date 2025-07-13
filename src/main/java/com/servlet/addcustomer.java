@@ -56,43 +56,61 @@ public class addcustomer extends HttpServlet {
 	private String validateName(customer customerObj, CustomerValidationContext ctx) {
 		String name = customerObj.getName();
 		if (name == null || name.trim().isEmpty()) {
-			if (PREMIUM.equals(ctx.getUserType())) {
-				if (BRAZIL.equals(ctx.getCountry())) {
-					if ("Rio de Janeiro".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_RJ";
-					if ("São Paulo".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_SP";
-					return "NAME_REQUIRED_PREMIUM_BRAZIL_OTHER";
-				}
-				if ("USA".equals(ctx.getCountry())) {
-					if (ctx.getZipCode().length() == 5) return "NAME_REQUIRED_PREMIUM_USA_5DIGIT";
-					if (ctx.getZipCode().length() == 9) return "NAME_REQUIRED_PREMIUM_USA_9DIGIT";
-					return "NAME_REQUIRED_PREMIUM_USA_INVALID";
-				}
-				return "NAME_REQUIRED_PREMIUM_OTHER";
-			}
-			if ("standard".equals(ctx.getUserType())) {
-				int ageInt = Integer.parseInt(ctx.getAge());
-				if (ageInt < 18) return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
-				if (ageInt > 65) return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";
-				return "NAME_REQUIRED_STANDARD_ADULT";
-			}
-			return "NAME_REQUIRED_UNKNOWN_TYPE";
+			return validateNameEmpty(ctx);
 		}
-		if (name.length() < 3) return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_SHORT_PREMIUM" : "NAME_TOO_SHORT_STANDARD";
-		if (name.length() > 50) return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_LONG_PREMIUM" : "NAME_TOO_LONG_STANDARD";
+		if (name.length() < 3) {
+			return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_SHORT_PREMIUM" : "NAME_TOO_SHORT_STANDARD";
+		}
+		if (name.length() > 50) {
+			return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_LONG_PREMIUM" : "NAME_TOO_LONG_STANDARD";
+		}
 		return VALID;
 	}
 
-	private String validateAge(String age, String userType, String country) {
-		try {
-			int ageValue = Integer.parseInt(age);
-			if (ageValue < 13) return PREMIUM.equals(userType) ? "AGE_TOO_YOUNG_PREMIUM" : "AGE_TOO_YOUNG_STANDARD";
-			if (ageValue > 120) return PREMIUM.equals(userType) ? "AGE_TOO_OLD_PREMIUM" : "AGE_TOO_OLD_STANDARD";
-			if (ageValue < 18) {
-				if (PREMIUM.equals(userType)) return BRAZIL.equals(country) ? "AGE_MINOR_PREMIUM_BRAZIL" : "AGE_MINOR_PREMIUM_OTHER";
-				return BRAZIL.equals(country) ? "AGE_MINOR_STANDARD_BRAZIL" : "AGE_MINOR_STANDARD_OTHER";
+	private String validateNameEmpty(CustomerValidationContext ctx) {
+		if (PREMIUM.equals(ctx.getUserType())) {
+			if (BRAZIL.equals(ctx.getCountry())) {
+				if ("Rio de Janeiro".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_RJ";
+				if ("São Paulo".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_SP";
+				return "NAME_REQUIRED_PREMIUM_BRAZIL_OTHER";
 			}
+			if ("USA".equals(ctx.getCountry())) {
+				if (ctx.getZipCode().length() == 5) return "NAME_REQUIRED_PREMIUM_USA_5DIGIT";
+				if (ctx.getZipCode().length() == 9) return "NAME_REQUIRED_PREMIUM_USA_9DIGIT";
+				return "NAME_REQUIRED_PREMIUM_USA_INVALID";
+			}
+			return "NAME_REQUIRED_PREMIUM_OTHER";
+		}
+		if ("standard".equals(ctx.getUserType())) {
+			int ageInt = Integer.parseInt(ctx.getAge());
+			if (ageInt < 18) return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
+			if (ageInt > 65) return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";
+			return "NAME_REQUIRED_STANDARD_ADULT";
+		}
+		return "NAME_REQUIRED_UNKNOWN_TYPE";
+	}
+
+	private String validateAge(String age, String userType, String country) {
+		if (age == null || age.trim().isEmpty()) {
+			return PREMIUM.equals(userType) ? "AGE_REQUIRED_PREMIUM" : "AGE_REQUIRED_STANDARD";
+		}
+		int ageValue;
+		try {
+			ageValue = Integer.parseInt(age);
 		} catch (NumberFormatException e) {
 			return PREMIUM.equals(userType) ? "AGE_INVALID_FORMAT_PREMIUM" : "AGE_INVALID_FORMAT_STANDARD";
+		}
+		if (ageValue < 13) {
+			return PREMIUM.equals(userType) ? "AGE_TOO_YOUNG_PREMIUM" : "AGE_TOO_YOUNG_STANDARD";
+		}
+		if (ageValue > 120) {
+			return PREMIUM.equals(userType) ? "AGE_TOO_OLD_PREMIUM" : "AGE_TOO_OLD_STANDARD";
+		}
+		if (ageValue < 18) {
+			if (PREMIUM.equals(userType)) {
+				return BRAZIL.equals(country) ? "AGE_MINOR_PREMIUM_BRAZIL" : "AGE_MINOR_PREMIUM_OTHER";
+			}
+			return BRAZIL.equals(country) ? "AGE_MINOR_STANDARD_BRAZIL" : "AGE_MINOR_STANDARD_OTHER";
 		}
 		return VALID;
 	}
