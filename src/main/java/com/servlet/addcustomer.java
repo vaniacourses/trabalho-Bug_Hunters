@@ -142,7 +142,13 @@ public class addcustomer extends HttpServlet {
 		customerObj.setName(username);
 		customerObj.setPassword(password);
 		customerObj.setEmail_Id(emailId);
-		customerObj.setContact_No(Integer.parseInt(contactNo));
+		try {
+			customerObj.setContact_No(Integer.parseInt(contactNo));
+		} catch (NumberFormatException nfe) {
+			LOGGER.severe("Invalid contact number format: " + contactNo);
+			response.sendRedirect("fail.jsp");
+			return;
+		}
 
 		try {
 			// Use o DAO2 injetado se existir, senão crie um novo
