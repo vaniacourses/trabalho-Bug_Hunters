@@ -136,35 +136,37 @@ public class addcustomer extends HttpServlet {
 	}
 
 	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response) {
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		String usernameRaw = request.getParameter("Username");
+		String username = usernameRaw.trim();
+
+		String passwordRaw = request.getParameter("Password");
+		String password = passwordRaw.trim();
+
+		String emailIdRaw = request.getParameter("Email_Id");
+		String emailId = emailIdRaw.trim();
+
+		String contactNoRaw = request.getParameter("Contact_No");
+		String contactNo = contactNoRaw.trim();
+
+		String total = request.getParameter("Total");
+		String customerName = request.getParameter("CusName");
+
+		customer customerObj = new customer();
+		customerObj.setName(username);
+		customerObj.setPassword(password);
+		customerObj.setEmail_Id(emailId);
 		try {
-			String usernameRaw = request.getParameter("Username");
-			String username = usernameRaw.trim();
+			customerObj.setContact_No(Integer.parseInt(contactNo));
+		} catch (NumberFormatException nfe) {
+			LOGGER.severe("Invalid contact number format: " + contactNo);
+			response.sendRedirect(FAIL_JSP);
+			return;
+		}
 
-			String passwordRaw = request.getParameter("Password");
-			String password = passwordRaw.trim();
-
-			String emailIdRaw = request.getParameter("Email_Id");
-			String emailId = emailIdRaw.trim();
-
-			String contactNoRaw = request.getParameter("Contact_No");
-			String contactNo = contactNoRaw.trim();
-
-			String total = request.getParameter("Total");
-			String customerName = request.getParameter("CusName");
-
-			customer customerObj = new customer();
-			customerObj.setName(username);
-			customerObj.setPassword(password);
-			customerObj.setEmail_Id(emailId);
-			try {
-				customerObj.setContact_No(Integer.parseInt(contactNo));
-			} catch (NumberFormatException nfe) {
-				LOGGER.severe("Invalid contact number format: " + contactNo);
-				response.sendRedirect(FAIL_JSP);
-				return;
-			}
-
+		try {
 			DAO2 dao = new DAO2(DBConnect.getConn());
 			if (dao.checkcust2(customerObj)) {
 				response.sendRedirect(FAIL_JSP);
@@ -180,9 +182,6 @@ public class addcustomer extends HttpServlet {
 			}
 		} catch (Exception ex) {
 			LOGGER.severe("Exception in addcustomer#doPost: " + ex.getMessage());
-			try {
-				response.sendRedirect(FAIL_JSP);
-			} catch (Exception ignored) {}
 		}
 	}
 }
