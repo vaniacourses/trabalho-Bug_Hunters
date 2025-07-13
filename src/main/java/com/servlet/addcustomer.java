@@ -19,33 +19,18 @@ import java.util.logging.Logger;
 public class addcustomer extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
-	// Novo: DAO2 injetável
-	private DAO2 dao2;
-
-	// Construtor padrão: uso normal
-	public addcustomer() {
-		super();
-		this.dao2 = null;
-	}
-
-	// Novo: construtor para injeção (usado em testes)
-	public addcustomer(DAO2 dao2) {
-		super();
-		this.dao2 = dao2;
-	}
-
-	// Novo: setter para injeção (opcional, útil em frameworks ou testes)
-	public void setDao2(DAO2 dao2) {
-		this.dao2 = dao2;
-	}
-
 	// Add a new static inner class to group validation context
 	public static class CustomerValidationContext {
-		public String userType;
-		public String age;
-		public String country;
-		public String city;
-		public String zipCode;
+		private final String userType;
+		private final String age;
+		private final String country;
+		private final String city;
+		private final String zipCode;
+		public String getUserType() { return userType; }
+		public String getAge() { return age; }
+		public String getCountry() { return country; }
+		public String getCity() { return city; }
+		public String getZipCode() { return zipCode; }
 		public CustomerValidationContext(String userType, String age, String country, String city, String zipCode) {
 			this.userType = userType;
 			this.age = age;
@@ -61,7 +46,7 @@ public class addcustomer extends HttpServlet {
 	public String validateCustomerData(customer customerObj, CustomerValidationContext ctx) {
 		String validationResult = validateName(customerObj, ctx);
 		if ("VALID".equals(validationResult)) {
-			validationResult = validateAge(ctx.age, ctx.userType, ctx.country);
+			validationResult = validateAge(ctx.getAge(), ctx.getUserType(), ctx.getCountry());
 		}
 		return validationResult;
 	}
@@ -69,29 +54,29 @@ public class addcustomer extends HttpServlet {
 	private String validateName(customer customerObj, CustomerValidationContext ctx) {
 		String name = customerObj.getName();
 		if (name == null || name.trim().isEmpty()) {
-			if (PREMIUM.equals(ctx.userType)) {
-				if (BRAZIL.equals(ctx.country)) {
-					if ("Rio de Janeiro".equals(ctx.city)) return "NAME_REQUIRED_PREMIUM_BRAZIL_RJ";
-					if ("São Paulo".equals(ctx.city)) return "NAME_REQUIRED_PREMIUM_BRAZIL_SP";
+			if (PREMIUM.equals(ctx.getUserType())) {
+				if (BRAZIL.equals(ctx.getCountry())) {
+					if ("Rio de Janeiro".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_RJ";
+					if ("São Paulo".equals(ctx.getCity())) return "NAME_REQUIRED_PREMIUM_BRAZIL_SP";
 					return "NAME_REQUIRED_PREMIUM_BRAZIL_OTHER";
 				}
-				if ("USA".equals(ctx.country)) {
-					if (ctx.zipCode.length() == 5) return "NAME_REQUIRED_PREMIUM_USA_5DIGIT";
-					if (ctx.zipCode.length() == 9) return "NAME_REQUIRED_PREMIUM_USA_9DIGIT";
+				if ("USA".equals(ctx.getCountry())) {
+					if (ctx.getZipCode().length() == 5) return "NAME_REQUIRED_PREMIUM_USA_5DIGIT";
+					if (ctx.getZipCode().length() == 9) return "NAME_REQUIRED_PREMIUM_USA_9DIGIT";
 					return "NAME_REQUIRED_PREMIUM_USA_INVALID";
 				}
 				return "NAME_REQUIRED_PREMIUM_OTHER";
 			}
-			if ("standard".equals(ctx.userType)) {
-				int ageInt = Integer.parseInt(ctx.age);
-				if (ageInt < 18) return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.country) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
-				if (ageInt > 65) return BRAZIL.equals(ctx.country) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";
+			if ("standard".equals(ctx.getUserType())) {
+				int ageInt = Integer.parseInt(ctx.getAge());
+				if (ageInt < 18) return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
+				if (ageInt > 65) return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";
 				return "NAME_REQUIRED_STANDARD_ADULT";
 			}
 			return "NAME_REQUIRED_UNKNOWN_TYPE";
 		}
-		if (name.length() < 3) return PREMIUM.equals(ctx.userType) ? "NAME_TOO_SHORT_PREMIUM" : "NAME_TOO_SHORT_STANDARD";
-		if (name.length() > 50) return PREMIUM.equals(ctx.userType) ? "NAME_TOO_LONG_PREMIUM" : "NAME_TOO_LONG_STANDARD";
+		if (name.length() < 3) return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_SHORT_PREMIUM" : "NAME_TOO_SHORT_STANDARD";
+		if (name.length() > 50) return PREMIUM.equals(ctx.getUserType()) ? "NAME_TOO_LONG_PREMIUM" : "NAME_TOO_LONG_STANDARD";
 		return "VALID";
 	}
 
@@ -151,9 +136,7 @@ public class addcustomer extends HttpServlet {
 		}
 
 		try {
-			// Use o DAO2 injetado se existir, senão crie um novo
-			DAO2 dao = (this.dao2 != null) ? this.dao2 : new DAO2(DBConnect.getConn());
-
+			DAO2 dao = new DAO2(DBConnect.getConn());
 			if (dao.checkcust2(customerObj)) {
 				response.sendRedirect("fail.jsp");
 			} else {
