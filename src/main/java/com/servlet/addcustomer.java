@@ -94,7 +94,7 @@ public class addcustomer extends HttpServlet {
 	private String validateNameEmptyStandard(CustomerValidationContext ctx) {
 		int ageInt = Integer.parseInt(ctx.getAge());
 		if (ageInt < 18) {
-			return "NAME_REQUIRED_STANDARD_MINOR_BRAZIL".equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
+			return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_MINOR_BRAZIL" : "NAME_REQUIRED_STANDARD_MINOR_OTHER";
 		}
 		if (ageInt > 65) {
 			return BRAZIL.equals(ctx.getCountry()) ? "NAME_REQUIRED_STANDARD_SENIOR_BRAZIL" : "NAME_REQUIRED_STANDARD_SENIOR_OTHER";

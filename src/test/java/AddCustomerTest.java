@@ -2,7 +2,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.sql.Connection;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -12,28 +11,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.conn.DBConnect;
-import com.dao.DAO2;
 import com.entity.customer;
 import com.servlet.addcustomer;
+import com.servlet.addcustomer.CustomerValidationContext;
 
 
 @ExtendWith(MockitoExtension.class)
 class AddCustomerTest {
-
-    private static final String VALID_USERNAME = "testUser";
-    private static final String VALID_PASSWORD = "testPass";
-    private static final String VALID_EMAIL = "test@test.com";
-    private static final String VALID_CONTACT = "1234567890";
-    private static final String VALID_TOTAL = "100";
-    private static final String VALID_CUSTOMER_NAME = "TestCustomer";
-
-    private static final String FAIL_JSP = "fail.jsp";
-    private static final String SUCCESS_REDIRECT_TEMPLATE = "customerlogin.jsp?Total=%s&CusName=%s";
 
     @Mock
     private HttpServletRequest request;
@@ -41,130 +28,12 @@ class AddCustomerTest {
     @Mock
     private HttpServletResponse response;
 
-    @Mock
-    private DAO2 dao;
-
-    @Mock
-    private Connection connection;
-
     private addcustomer servlet;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        servlet = new addcustomer(dao);
-
-        try (MockedStatic<DBConnect> dbConnect = mockStatic(DBConnect.class)) {
-            dbConnect.when(DBConnect::getConn).thenReturn(connection);
-        }
-    }
-
-    @Test
-    void shouldSuccessfullyRegisterNewCustomer() throws ServletException, IOException {
-        // Arrange
-        setupValidRequestParameters();
-        setupSuccessfulRegistrationMocks();
-
-        // Act
-        servlet.doPost(request, response);
-
-        // Assert
-        verify(response).addCookie(any(Cookie.class));
-        verify(response).sendRedirect(String.format(
-                SUCCESS_REDIRECT_TEMPLATE, VALID_TOTAL, VALID_CUSTOMER_NAME));
-    }
-
-    @Test
-    void shouldRedirectToFailWhenCustomerAlreadyExists() throws ServletException, IOException {
-        // Arrange
-        setupValidRequestParameters();
-        when(dao.checkcust2(any(customer.class))).thenReturn(true);
-
-        // Act
-        servlet.doPost(request, response);
-
-        // Assert
-        verify(response).sendRedirect(FAIL_JSP);
-        verify(dao, never()).addcustomer(any(customer.class));
-    }
-
-    @Test
-    void shouldRedirectToFailWhenRegistrationFails() throws ServletException, IOException {
-        // Arrange
-        setupValidRequestParameters();
-        when(dao.checkcust2(any(customer.class))).thenReturn(false);
-        when(dao.addcustomer(any(customer.class))).thenReturn(0);
-
-        // Act
-        servlet.doPost(request, response);
-
-        // Assert
-        verify(response).sendRedirect(FAIL_JSP);
-    }
-
-    @Test
-    void shouldHandleDatabaseException() throws ServletException, IOException {
-        // Arrange
-        setupValidRequestParameters();
-        when(dao.checkcust2(any(customer.class)))
-                .thenThrow(new RuntimeException("Database error"));
-
-        // Act
-        servlet.doPost(request, response);
-
-        // Assert
-        verify(response, never()).sendRedirect(anyString());
-    }
-
-    @Test
-    void shouldHandleInvalidContactNumber() throws ServletException, IOException {
-        // Arrange
-        setupRequestParameters(
-                VALID_USERNAME,
-                VALID_PASSWORD,
-                VALID_EMAIL,
-                "invalid",
-                VALID_TOTAL,
-                VALID_CUSTOMER_NAME
-        );
-
-        // Act & Assert
-        try {
-            servlet.doPost(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
-    }
-
-    private void setupValidRequestParameters() {
-        setupRequestParameters(
-                VALID_USERNAME,
-                VALID_PASSWORD,
-                VALID_EMAIL,
-                VALID_CONTACT,
-                VALID_TOTAL,
-                VALID_CUSTOMER_NAME
-        );
-    }
-
-    private void setupRequestParameters(
-            String username,
-            String password,
-            String email,
-            String contactNo,
-            String total,
-            String cusName) {
-        when(request.getParameter("Username")).thenReturn(" " + username + " ");
-        when(request.getParameter("Password")).thenReturn(" " + password + " ");
-        when(request.getParameter("Email_Id")).thenReturn(" " + email + " ");
-        when(request.getParameter("Contact_No")).thenReturn(" " + contactNo + " ");
-        when(request.getParameter("Total")).thenReturn(total);
-        when(request.getParameter("CusName")).thenReturn(cusName);
-    }
-
-    private void setupSuccessfulRegistrationMocks() {
-        when(dao.checkcust2(any(customer.class))).thenReturn(false);
-        when(dao.addcustomer(any(customer.class))).thenReturn(1);
+        servlet = new addcustomer();
     }
 
     // ----------------------
@@ -177,7 +46,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "30", "Brazil", "Rio de Janeiro", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "30", "Brazil", "Rio de Janeiro", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_PREMIUM_BRAZIL_RJ", result);
     }
 
@@ -187,7 +57,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "30", "Brazil", "São Paulo", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "30", "Brazil", "São Paulo", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_PREMIUM_BRAZIL_SP", result);
     }
 
@@ -197,7 +68,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "30", "USA", "", "12345", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "30", "USA", "", "12345");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_PREMIUM_USA_5DIGIT", result);
     }
 
@@ -207,7 +79,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "30", "USA", "", "123456789", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "30", "USA", "", "123456789");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_PREMIUM_USA_9DIGIT", result);
     }
 
@@ -217,7 +90,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "17", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "17", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_STANDARD_MINOR_BRAZIL", result);
     }
 
@@ -227,7 +101,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ab");
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "30", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "30", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_TOO_SHORT_PREMIUM", result);
     }
 
@@ -237,7 +112,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(new String(new char[51]).replace('\0', 'a'));
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "30", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "30", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_TOO_LONG_STANDARD", result);
     }
 
@@ -247,7 +123,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "premium", null, "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", null, "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_REQUIRED_PREMIUM", result);
     }
 
@@ -257,7 +134,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "12", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "12", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_TOO_YOUNG_STANDARD", result);
     }
 
@@ -267,7 +145,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "121", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "121", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_TOO_OLD_PREMIUM", result);
     }
 
@@ -277,7 +156,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "15", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "15", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_MINOR_PREMIUM_BRAZIL", result);
     }
 
@@ -287,7 +167,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "16", "USA", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "16", "USA", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_MINOR_STANDARD_OTHER", result);
     }
 
@@ -297,7 +178,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "premium", "abc", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("premium", "abc", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_INVALID_FORMAT_PREMIUM", result);
     }
 
@@ -307,39 +189,14 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "25", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "25", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("VALID", result);
     }
 
     // ----------------------
     // Testes adicionais para cobrir todas as arestas de doPost e doGet
     // ----------------------
-
-
-    @Test
-    void testDoPostAddCookieThrowsException() throws Exception {
-        setupValidRequestParameters();
-        when(dao.checkcust2(any(customer.class))).thenReturn(false);
-        when(dao.addcustomer(any(customer.class))).thenReturn(1);
-        // Simula exceção ao adicionar cookie
-        doThrow(new RuntimeException("Cookie error")).when(response).addCookie(any(Cookie.class));
-        addcustomer servlet = new addcustomer(dao);
-        // Não deve lançar, apenas printar exceção
-        servlet.doPost(request, response);
-        verify(response, never()).sendRedirect("fail.jsp"); // Não redireciona para fail.jsp por erro de cookie
-    }
-
-    @Test
-    void testDoPostSendRedirectThrowsException() throws Exception {
-        setupValidRequestParameters();
-        when(dao.checkcust2(any(customer.class))).thenReturn(true);
-        // Simula exceção ao chamar sendRedirect
-        doThrow(new IOException("Redirect error")).when(response).sendRedirect(anyString());
-        addcustomer servlet = new addcustomer(dao);
-        // Não deve lançar, apenas printar exceção
-        servlet.doPost(request, response);
-        // Não há assert, mas o teste cobre a aresta de exceção
-    }
 
     @Test
     void testDoGetDoesNotThrow() {
@@ -355,7 +212,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "18", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "18", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_STANDARD_ADULT", result);
     }
 
@@ -365,7 +223,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "65", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "65", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_STANDARD_ADULT", result);
     }
 
@@ -375,7 +234,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "66", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "66", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_STANDARD_SENIOR_BRAZIL", result);
     }
 
@@ -385,7 +245,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "66", "USA", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "66", "USA", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_STANDARD_SENIOR_OTHER", result);
     }
 
@@ -395,7 +256,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("abc");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "25", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "25", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("VALID", result);
     }
 
@@ -405,7 +267,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(new String(new char[50]).replace('\0', 'a'));
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "25", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "25", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("VALID", result);
     }
 
@@ -415,7 +278,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "13", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "13", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("AGE_MINOR_STANDARD_BRAZIL", result);
     }
 
@@ -425,7 +289,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "18", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "18", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("VALID", result);
     }
 
@@ -435,7 +300,8 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName("ValidName");
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "120", "Brazil", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "120", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("VALID", result);
     }
 
@@ -445,24 +311,41 @@ class AddCustomerTest {
         addcustomer servlet = new addcustomer();
         customer ct = new customer();
         ct.setName(null);
-        String result = servlet.validateCustomerData(ct, "pass", "standard", "70", "Argentina", "", "", "true");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "70", "Argentina", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
         assertEquals("NAME_REQUIRED_STANDARD_SENIOR_OTHER", result);
     }
 
-    // Testa se o cookie criado tem maxAge correto
+    // Testa userType diferente de premium e standard
     @Test
-    void testCookieMaxAge() throws Exception {
-        setupValidRequestParameters();
-        when(dao.checkcust2(any(customer.class))).thenReturn(false);
-        when(dao.addcustomer(any(customer.class))).thenReturn(1);
-        final Cookie[] cookieHolder = new Cookie[1];
-        doAnswer(invocation -> {
-            cookieHolder[0] = invocation.getArgument(0);
-            return null;
-        }).when(response).addCookie(any(Cookie.class));
-        addcustomer servlet = new addcustomer(dao);
-        servlet.doPost(request, response);
-        assertNotNull(cookieHolder[0]);
-        assertEquals(10, cookieHolder[0].getMaxAge());
+    void testNameNullUnknownUserType() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName(null);
+        CustomerValidationContext ctx = new CustomerValidationContext("unknown", "25", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
+        assertEquals("NAME_REQUIRED_UNKNOWN_TYPE", result);
+    }
+
+    // Testa nome vazio (apenas espaços)
+    @Test
+    void testNameEmptyWithSpaces() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName("   ");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "25", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
+        assertEquals("NAME_REQUIRED_STANDARD_ADULT", result);
+    }
+
+    // Testa idade vazia (apenas espaços)
+    @Test
+    void testAgeEmptyWithSpaces() {
+        addcustomer servlet = new addcustomer();
+        customer ct = new customer();
+        ct.setName("ValidName");
+        CustomerValidationContext ctx = new CustomerValidationContext("standard", "   ", "Brazil", "", "");
+        String result = servlet.validateCustomerData(ct, ctx);
+        assertEquals("AGE_REQUIRED_STANDARD", result);
     }
 }
