@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.conn.DBConnect;
 import com.dao.DAO2;
 import com.entity.customer;
+import java.util.logging.Logger;
 
 @MultipartConfig
 @WebServlet("/addcustomer")
@@ -110,6 +111,8 @@ public class addcustomer extends HttpServlet {
 		return "VALID";
 	}
 
+	private static final Logger LOGGER = Logger.getLogger(addcustomer.class.getName());
+
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -158,7 +161,7 @@ public class addcustomer extends HttpServlet {
 				}
 			}
 		} catch (Exception ex) {
-			System.out.println(ex);
+			LOGGER.severe("Exception in addcustomer#doPost: " + ex.getMessage());
 		}
 	}
 }
