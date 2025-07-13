@@ -110,11 +110,13 @@ public class addcustomer extends HttpServlet {
 		return "VALID";
 	}
 
+	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// This servlet does not handle GET requests. Method intentionally left empty.
 	}
 
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
