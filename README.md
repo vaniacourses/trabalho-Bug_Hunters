@@ -34,7 +34,6 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 - [Adicionar um pagamento em dinheiro com a opção de pagar na entrega e finalizar um pedido](https://docs.google.com/document/d/1E_41Txj8uJANZUCJw7R20RmnQptgiBqvcovQkw_CIg4/edit?tab=t.0)
 
 
-
 ## Testes Unitários
 ### Path
 ```
@@ -50,6 +49,12 @@ projeto
 
 ## Guia Detalhado Classes de Teste
 - [AddCustomerTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddCustomerTestGuide.md)
+
+
+## Evidências Sonar
+Evidências das melhorias de problemas apontados pelo Sonar 
+![sonar_1](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/Analise_Sonar.png)
+![sonar_2](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/sonar_graph.png)
 
 ## Stack utilizada
 
