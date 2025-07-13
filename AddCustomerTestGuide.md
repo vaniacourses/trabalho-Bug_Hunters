@@ -3,15 +3,12 @@
 ## 📋 Visão Geral
 Classe de teste unitário para validação de dados de clientes utilizando **JUnit 5** e **Mockito** para testar o servlet `addcustomer`.
 
-## 🎯 Objetivo Principal
-Validar a lógica de negócio do método `validateCustomerData()` com foco em **cobertura completa de caminhos** e **validação de regras de negócio**.
-
 ---
 
 ## 🛠️ Técnicas Utilizadas
 
-### **1. Test-Driven Development (TDD)**
-- Testes escritos antes da implementação
+### **Caixa Branca**
+
 - Foco em comportamento esperado
 - Validação de regras de negócio específicas
 
@@ -34,12 +31,7 @@ Validar a lógica de negócio do método `validateCustomerData()` com foco em **
 ## 📊 Estratégias de Cobertura
 
 ### **1. Cobertura de Caminhos (Path Coverage)**
-| Cenário | Tipo de Cliente | Idade | País | Cidade/ZipCode | Resultado Esperado |
-|---------|----------------|-------|------|----------------|-------------------|
-| Nome nulo | Premium | 30 | Brazil | Rio de Janeiro | `NAME_REQUIRED_PREMIUM_BRAZIL_RJ` |
-| Nome nulo | Premium | 30 | Brazil | São Paulo | `NAME_REQUIRED_PREMIUM_BRAZIL_SP` |
-| Nome nulo | Premium | 30 | USA | 12345 | `NAME_REQUIRED_PREMIUM_USA_5DIGIT` |
-| Nome nulo | Premium | 30 | USA | 123456789 | `NAME_REQUIRED_PREMIUM_USA_9DIGIT` |
+
 
 ### **2. Análise de Valores Limite**
 ```java
@@ -127,24 +119,6 @@ assertEquals("NAME_REQUIRED_PREMIUM_BRAZIL_RJ", result);
 - ✅ **Combinações Complexas**: Múltiplas regras simultâneas
 - ✅ **Casos de Erro**: Exceções e falhas esperadas
 
----
-
-## 🎯 Benefícios das Técnicas
-
-### **1. Robustez**
-- Detecta regressões automaticamente
-- Valida mudanças de comportamento
-- Garante qualidade contínua
-
-### **2. Documentação Viva**
-- Testes como especificação executável
-- Exemplos de uso da API
-- Comportamento esperado documentado
-
-### **3. Refatoração Segura**
-- Confiança para mudanças
-- Detecção de bugs precoce
-- Manutenibilidade melhorada
 
 ---
 
@@ -158,15 +132,3 @@ assertEquals("NAME_REQUIRED_PREMIUM_BRAZIL_RJ", result);
 | **Maven** | Build tool | Execução automatizada |
 
 ---
-
-## 📝 Conclusões
-
-A classe `AddCustomerTest` demonstra **excelência em engenharia de software** através de:
-
-- ✅ **Cobertura abrangente** de cenários de negócio
-- ✅ **Técnicas avançadas** de teste (mutação, valores limite)
-- ✅ **Padrões estabelecidos** de desenvolvimento
-- ✅ **Qualidade de código** elevada
-- ✅ **Manutenibilidade** e legibilidade
-
-**Resultado**: Testes robustos que garantem confiabilidade e facilitam evolução do sistema. 
