@@ -41,7 +41,8 @@ projeto
 ├── test
 │   └── java
 │       └── AddCustomerTest.java
-|       └── AddNewProductTest.java 
+|       └── AddNewProductTest.java
+|       └── AddProdToCartTest.java
 
 ```
 ## Diagramas de Classe
@@ -49,6 +50,7 @@ projeto
 
 ## Guia Detalhado Classes de Teste
 - [AddCustomerTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddCustomerTestGuide.md)
+- [AddProdToCartTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddProdToCartTest.md)
 
 
 ## Evidências Sonar
