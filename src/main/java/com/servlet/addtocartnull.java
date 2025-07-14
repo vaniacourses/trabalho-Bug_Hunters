@@ -26,15 +26,20 @@ import com.dao.DAO;
 @WebServlet("/addtocartnull")
 public class addtocartnull extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-       
-  
-    public addtocartnull() {
+	private DAO2 dao;
+
+	public addtocartnull() {
         super();
-     
+
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-			
+	// Construtor para facilitar testes -- injeção do DAO2 mockado
+	public addtocartnull(DAO2 dao) {
+		this.dao = dao;
+	}
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
 		String N = null;
 
 		// out.println(N);
@@ -47,7 +52,7 @@ public class addtocartnull extends HttpServlet {
 		int ii = Integer.parseInt(iistr);
 		String ij=request.getParameter("ij");
 
-		
+
 		cart c = new cart();
 		c.setBname(id);
 		c.setCname(ie);
@@ -55,23 +60,22 @@ public class addtocartnull extends HttpServlet {
 		c.setPprice(ih);
 		c.setPimage(ij);
 		c.setPquantity(ii);
-		
-		
-		
-		
+
+
+
+
 		try{
-			DAO2 dao = new DAO2(DBConnect.getConn());
-			
-			
+			//DAO2 dao = new DAO2(DBConnect.getConn());
+
 			if (dao.checkaddtocartnull(c) ==true)
 			{
 				if(dao.updateaddtocartnull(c) > 0)
-				{	
+				{
 					Cookie cart = new Cookie("cart","cartt");
 					cart.setMaxAge(10);
 					response.addCookie(cart);
 					response.sendRedirect("cartnull.jsp");
-				}	
+				}
 				else
 					response.sendRedirect("selecteditem.jsp");
 			}
@@ -87,24 +91,14 @@ public class addtocartnull extends HttpServlet {
 				else
 					response.sendRedirect("selecteditem.jsp");
 			}
-			
+
 			}catch(Exception ex){
 			   System.out.println(ex.getMessage());
 			}
-			
-	
-				
-			
-	
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		
-		
-			
-		
-		
+
 	}
 
 }
