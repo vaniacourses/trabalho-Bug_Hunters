@@ -31,7 +31,8 @@ public class DAO extends BaseDAO {
         this.myUtilities = myUtilities;
         this.servletFileUpload = servletFileUpload;
     }
-
+	
+	
 	// list all brand
 	public List<brand> getAllbrand(){
 		String sql = "select bid, bname from brand";
@@ -40,6 +41,7 @@ public class DAO extends BaseDAO {
 	
 	
 	// list all category
+	
 	public List<category> getAllcategory(){
 		String sql = "select cid, cname from category";
 		return executeQuery(sql, EntityMappers::mapToCategory);
@@ -53,7 +55,7 @@ public int addproduct(HttpServletRequest request) {
         List<FileItem> multiparts = servletFileUpload.parseRequest(request);
         ProductData productData = extractProductData(multiparts, path);
 
-
+        // ✅ Validação completa (upload, preço, quantidade e nome)
         if (productData.isValid()) {
             result = insertProduct(productData);
             logProductDetails(productData);
@@ -222,11 +224,9 @@ private static class ProductData {
         return pname == null || pname.trim().isEmpty();
     }
 
-    public boolean hasEmptyImage() {return pimage == null || pimage.trim().isEmpty();}
-
     // Método que indica se os dados são válidos
     public boolean isValid() {
-        return !hasUploadError() && !hasInvalidPrice() && !hasInvalidQuantity() && !hasInvalidName() && !hasEmptyImage();
+        return !hasUploadError() && !hasInvalidPrice() && !hasInvalidQuantity() && !hasInvalidName();
     }
 
     // Getters e Setters
@@ -256,7 +256,9 @@ public List<customer> getAllCustomer()
 	return executeQuery(sql, EntityMappers::mapToCustomer);
 }
 
+
 //Delete Customer
+
 	public boolean deleteCustomer(customer c)
 	{
 		String sql = "delete from customer where Name = ? and Email_Id = ?";
@@ -265,7 +267,9 @@ public List<customer> getAllCustomer()
 		return result == 1;
 	}
 
-    // display selected customer
+	
+	// display selected customer
+
 public List<customer> getCustomer(String eid)
 {
 	String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
