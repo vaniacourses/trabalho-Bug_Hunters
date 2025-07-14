@@ -34,9 +34,6 @@
 | [f456dec](https://github.com/vaniacourses/trabalho-Bug_Hunters/commit/f456dec) | Lucas Magalhães | Fix S2095 - DAO - Resources should be closed |
 | [e5340be](https://github.com/vaniacourses/trabalho-Bug_Hunters/commit/e5340be) | Lucas Magalhães | Fix Stub AddNewProduct Class |
 
-## Resumo
-
-Este documento contém todos os commits relacionados às correções de issues do SonarQube no projeto **Trabalho Bug Hunters**. Cada linha representa uma correção específica de qualidade de código identificada pela ferramenta de análise estática.
 
 ### Categorias de Issues Corrigidas:
 
@@ -57,5 +54,3 @@ Este documento contém todos os commits relacionados às correções de issues d
 - **S6905**: Queries SQL otimizadas
 - **S1075**: Constantes ignoradas
 - **S2095**: Recursos não fechados
-
-### Total de Commits: 32 
