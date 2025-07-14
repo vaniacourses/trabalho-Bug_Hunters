@@ -66,6 +66,9 @@ Evidências das melhorias de problemas apontados pelo Sonar
 ## Selenium (Testes de Sistema)
 - [Execução Selenium](https://www.loom.com/share/e8f0f4ed01a44f2b8e61786166ca1fb3?sid=7667d04a-4ebc-4a26-b03d-f60f5cac0a2c)
 
+## Entrega 2 Doc
+- [Execução Selenium](https://docs.google.com/document/d/1pJSGkV3vPNXcux9QeKqKA9fqOVPWeQhE2hWuBJX_0mg/edit?usp=sharing)
+
 ## Stack utilizada
 
 **Front-end:** HTML,CSS, Bootstrap,  JSP & Javascript
