@@ -59,6 +59,9 @@ Evidências das melhorias de problemas apontados pelo Sonar
 ## Detalhes das Melhorias Sonar 
 - [Fix Sonar](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/commits-sonar-table.md)
 
+## Selenium (Testes de Sistema)
+- [Execução Selenium](https://www.loom.com/share/e8f0f4ed01a44f2b8e61786166ca1fb3?sid=7667d04a-4ebc-4a26-b03d-f60f5cac0a2c)
+
 ## Stack utilizada
 
 **Front-end:** HTML,CSS, Bootstrap,  JSP & Javascript
