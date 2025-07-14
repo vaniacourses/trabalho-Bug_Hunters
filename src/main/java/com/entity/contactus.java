@@ -13,7 +13,6 @@ public class contactus {
 		
 	}
 
-
 	public int getId() {
 		return id;
 	}
@@ -62,8 +61,5 @@ public class contactus {
 	public void setMessage(String message) {
 		Message = message;
 	}
-	
-	
-	
-	
+
 }

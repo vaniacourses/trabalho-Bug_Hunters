@@ -120,9 +120,11 @@
                     <targetClasses>
                         <param>com.servlet.addcustomer</param>
                         <param>com.entity.contactus</param>
+                        <param>com.servlet.addtocartnull</param>
                     </targetClasses>
                     <targetTests>
                         <param>AddCustomerTest</param>
+                        <param>AddProdToCartTest</param>
                         <param>com.entity.ContactusTest</param>
                     </targetTests>
                 </configuration>

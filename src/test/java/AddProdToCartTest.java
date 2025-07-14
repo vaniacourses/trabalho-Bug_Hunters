@@ -1,128 +1,140 @@
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import com.dao.DAO2;
+import org.junit.jupiter.api.*;
+import org.mockito.*;
+
 import com.entity.cart;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.dao.DAO2;
+import com.servlet.addtocartnull;
 
-public class AddProdToCartTest {
+class AddProdToCartTest {
 
-    private Connection mockConnection;
-    private PreparedStatement mockPreparedStatement;
-    private DAO2 dao;
+    @Mock HttpServletRequest request;
+    @Mock HttpServletResponse response;
+    @Mock DAO2 dao;
+
+    @Captor ArgumentCaptor<cart> cartCaptor;
+    @Captor ArgumentCaptor<Cookie> cookieCaptor;
+
+    addtocartnull servlet;
 
     @BeforeEach
-    public void setup() throws Exception {
-        mockConnection = mock(Connection.class);
-        mockPreparedStatement = mock(PreparedStatement.class);
-
-        when(mockConnection.prepareStatement(any(String.class))).thenReturn(mockPreparedStatement);
-        dao = new DAO2(mockConnection);
+    void setup() {
+        MockitoAnnotations.openMocks(this);
+        servlet = new addtocartnull(dao);
     }
 
-    private cart buildCart(
-            String bname, String cname, String pname,
-            Integer pprice, Integer pquantity, String pimage) {
-
-        cart mockCart = mock(cart.class);
-        when(mockCart.getBname()).thenReturn(bname);
-        when(mockCart.getCname()).thenReturn(cname);
-        when(mockCart.getPname()).thenReturn(pname);
-        when(mockCart.getPprice()).thenReturn(pprice);
-        when(mockCart.getPquantity()).thenReturn(pquantity);
-        when(mockCart.getPimage()).thenReturn(pimage);
-        return mockCart;
+    // Método helper para mockar os parâmetros de request
+    void mockRequestParameters() {
+        when(request.getParameter("id")).thenReturn("Book");
+        when(request.getParameter("ie")).thenReturn("Client");
+        when(request.getParameter("ig")).thenReturn("Pen");
+        when(request.getParameter("ih")).thenReturn("10");
+        when(request.getParameter("ii")).thenReturn("2");
+        when(request.getParameter("ij")).thenReturn("img.png");
     }
 
     @Test
-    public void testAddToCart_SuccessfulInsert_Returns1() throws Exception {
-        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+    void testDoGet_ItemExists_UpdateSuccess() throws Exception {
+        mockRequestParameters();
 
-        int result = dao.addtocartnull(mockCart);
+        when(dao.checkaddtocartnull(any(cart.class))).thenReturn(true);
+        when(dao.updateaddtocartnull(any(cart.class))).thenReturn(1);
 
-        assertEquals(1, result);
-        verify(mockPreparedStatement, times(1)).executeUpdate();
+        servlet.doGet(request, response);
+
+        // Verifica o objeto cart passado ao DAO
+        verify(dao).checkaddtocartnull(cartCaptor.capture());
+        cart c = cartCaptor.getValue();
+        assertEquals("Book", c.getBname());
+        assertEquals("Client", c.getCname());
+        assertEquals("Pen", c.getPname());
+        assertEquals(10, c.getPprice());
+        assertEquals(2, c.getPquantity());
+        assertEquals("img.png", c.getPimage());
+
+        // Verifica cookie criado corretamente
+        verify(response).addCookie(cookieCaptor.capture());
+        Cookie cookie = cookieCaptor.getValue();
+        assertEquals("cart", cookie.getName());
+        assertEquals("cartt", cookie.getValue());
+        assertEquals(10, cookie.getMaxAge());
+
+        verify(response).sendRedirect("cartnull.jsp");
     }
 
     @Test
-    public void testAddToCart_InsertFails_Returns0() throws Exception {
-        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
-        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+    void testDoGet_ItemExists_UpdateFail() throws Exception {
+        mockRequestParameters();
 
-        int result = dao.addtocartnull(mockCart);
+        when(dao.checkaddtocartnull(any(cart.class))).thenReturn(true);
+        when(dao.updateaddtocartnull(any(cart.class))).thenReturn(0); // update falhou
 
-        assertEquals(0, result);
+        servlet.doGet(request, response);
+
+        verify(dao).checkaddtocartnull(cartCaptor.capture());
+        cart c = cartCaptor.getValue();
+        assertEquals("Book", c.getBname());
+
+        verify(response, never()).addCookie(any());
+        verify(response).sendRedirect("selecteditem.jsp");
     }
 
     @Test
-    public void testAddToCart_PrepareStatementException_Returns0() throws Exception {
-        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
+    void testDoGet_ItemDoesNotExist_AddSuccess() throws Exception {
+        mockRequestParameters();
 
-        when(mockConnection.prepareStatement(any())).thenThrow(new SQLException("Erro SQL"));
+        when(dao.checkaddtocartnull(any(cart.class))).thenReturn(false);
+        when(dao.addtocartnull(any(cart.class))).thenReturn(1);
 
-        int result = dao.addtocartnull(mockCart);
+        servlet.doGet(request, response);
 
-        assertEquals(0, result);
+        verify(dao).checkaddtocartnull(cartCaptor.capture());
+        cart c = cartCaptor.getValue();
+        assertEquals("Book", c.getBname());
+
+        verify(response).addCookie(cookieCaptor.capture());
+        Cookie cookie = cookieCaptor.getValue();
+        assertEquals(10, cookie.getMaxAge());
+
+        verify(response).sendRedirect("cartnull.jsp");
     }
 
     @Test
-    public void testAddToCart_SetParameterException_Returns0() throws Exception {
-        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
+    void testDoGet_ItemDoesNotExist_AddFail() throws Exception {
+        mockRequestParameters();
 
-        doThrow(new SQLException("Erro em setString")).when(mockPreparedStatement).setObject(eq(1), eq("Book"));
+        when(dao.checkaddtocartnull(any(cart.class))).thenReturn(false);
+        when(dao.addtocartnull(any(cart.class))).thenReturn(0); // add falhou
 
-        int result = dao.addtocartnull(mockCart);
+        servlet.doGet(request, response);
 
-        assertEquals(0, result);
+        verify(dao).checkaddtocartnull(cartCaptor.capture());
+        cart c = cartCaptor.getValue();
+        assertEquals("Book", c.getBname());
+
+        verify(response, never()).addCookie(any());
+        verify(response).sendRedirect("selecteditem.jsp");
     }
 
     @Test
-    public void testAddToCart_NullValues() throws Exception {
-        cart mockCart = buildCart(null, null, null, null, null, null);
+    void testDoGet_InvalidParameters_ThrowsException() {
+        // Simular parâmetros inválidos que causariam NumberFormatException
+        when(request.getParameter("ih")).thenReturn("abc");
+        when(request.getParameter("ii")).thenReturn("def");
 
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        // O servlet deve lançar exception ou tratá-la; aqui testamos exceção
+        assertThrows(NumberFormatException.class, () -> {
+            servlet.doGet(request, response);
+        });
 
-        int result = dao.addtocartnull(mockCart);
-
-        assertEquals(1, result);
-    }
-
-    @Test
-    public void testAddToCart_VerifySetParameters() throws Exception {
-        cart mockCart = buildCart("Book", "Client", "Pen", 10, 2, "img.png");
-
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        dao.addtocartnull(mockCart);
-
-        verify(mockPreparedStatement).setObject(1, "Book");
-        verify(mockPreparedStatement).setObject(2, "Client");
-        verify(mockPreparedStatement).setObject(3, "Pen");
-        verify(mockPreparedStatement).setObject(4, 10);
-        verify(mockPreparedStatement).setObject(5, 2);
-        verify(mockPreparedStatement).setObject(6, "img.png");
-    }
-
-    @Test
-    public void testAddToCart_WithRealCartObject() throws Exception {
-        cart realCart = new cart();
-        realCart.setBname("Book");
-        realCart.setCname("Client");
-        realCart.setPname("Pen");
-        realCart.setPprice(50);
-        realCart.setPquantity(1);
-        realCart.setPimage("img.png");
-
-        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-
-        int result = dao.addtocartnull(realCart);
-
-        assertEquals(1, result);
+        // Nenhuma interação com DAO ou response esperada
+        verifyNoInteractions(dao);
+        verifyNoInteractions(response);
     }
 }
