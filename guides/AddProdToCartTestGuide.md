@@ -30,6 +30,10 @@ O foco está em garantir que, conforme os dados de entrada e as respostas do DAO
 
 ---
 
+### **Evidência Pitest**
+![Pitest Imagem](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/AddProdToCartTestEvidencia.png)
+
+
 ## 📊 Estratégias de Cobertura
 
 ### **1. Cobertura de Fluxos Condicionais**
