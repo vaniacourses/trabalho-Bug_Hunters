@@ -56,6 +56,9 @@ Evidências das melhorias de problemas apontados pelo Sonar
 ![sonar_1](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/Analise_Sonar.png)
 ![sonar_2](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/sonar_graph.png)
 
+## Detalhes das Melhorias Sonar 
+- [Fix Sonar](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/commits-sonar-table.md)
+
 ## Stack utilizada
 
 **Front-end:** HTML,CSS, Bootstrap,  JSP & Javascript
