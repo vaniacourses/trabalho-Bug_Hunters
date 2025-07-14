@@ -5,6 +5,9 @@ Classe de teste unitário para validação de dados de clientes utilizando **JUn
 
 ---
 
+## Diagrama de Classe Após as técnicas
+![Diagram](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/AddCustomerTestDiagramAfter.png)
+
 ## 🛠️ Técnicas Utilizadas
 
 ### **Caixa Branca**
