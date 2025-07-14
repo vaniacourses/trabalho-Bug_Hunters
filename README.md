@@ -51,6 +51,8 @@ projeto
 ## Guia Detalhado Classes de Teste
 - [AddCustomerTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddCustomerTestGuide.md)
 - [AddProdToCartTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddProdToCartTestGuide.md)
+- [AddNewProductTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddNewProductTestGuide.md)
+
 
 
 ## Evidências Sonar
