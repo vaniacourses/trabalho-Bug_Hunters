@@ -34,7 +34,6 @@ O objetivo do e-commerce App é oferecer uma plataforma completa e intuitiva par
 - [Adicionar um pagamento em dinheiro com a opção de pagar na entrega e finalizar um pedido](https://docs.google.com/document/d/1E_41Txj8uJANZUCJw7R20RmnQptgiBqvcovQkw_CIg4/edit?tab=t.0)
 
 
-
 ## Testes Unitários
 ### Path
 ```
@@ -48,6 +47,20 @@ projeto
 ## Diagramas de Classe
 - [AddCustomerTest.java](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/Diagram/AddCustomerTest.png?raw=true)
 
+## Guia Detalhado Classes de Teste
+- [AddCustomerTest](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/AddCustomerTestGuide.md)
+
+
+## Evidências Sonar
+Evidências das melhorias de problemas apontados pelo Sonar 
+![sonar_1](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/Analise_Sonar.png)
+![sonar_2](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/images/sonar_graph.png)
+
+## Detalhes das Melhorias Sonar 
+- [Fix Sonar](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/guides/commits-sonar-table.md)
+
+## Selenium (Testes de Sistema)
+- [Execução Selenium](https://www.loom.com/share/e8f0f4ed01a44f2b8e61786166ca1fb3?sid=7667d04a-4ebc-4a26-b03d-f60f5cac0a2c)
 
 ## Stack utilizada
 
