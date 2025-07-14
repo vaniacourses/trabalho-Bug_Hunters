@@ -466,7 +466,6 @@ void testShouldAddProductWithLowerBoundaryValues() throws Exception {
     }
 }
 
-
 // Valor Acima  do Limite Superior
 @Test
 void testShouldReturnZeroWhenValuesAreAboveUpperLimit() throws Exception {
@@ -514,54 +513,6 @@ void testShouldReturnZeroWhenValuesAreAboveUpperLimit() throws Exception {
 
     }
 }
-
-@Test
-void testShouldAddProductWithNoName() throws Exception {
-    when(fileItemFormField1.isFormField()).thenReturn(true);
-    when(fileItemFormField1.getFieldName()).thenReturn("pname");
-    when(fileItemFormField1.getString()).thenReturn("");
-
-    when(fileItemFormField2.isFormField()).thenReturn(true);
-    when(fileItemFormField2.getFieldName()).thenReturn("pprice");
-    when(fileItemFormField2.getString()).thenReturn("1");
-
-    when(fileItemFormField3.isFormField()).thenReturn(true);
-    when(fileItemFormField3.getFieldName()).thenReturn("pquantity");
-    when(fileItemFormField3.getString()).thenReturn("1");
-
-    when(fileItemFormField4.isFormField()).thenReturn(true);
-    when(fileItemFormField4.getFieldName()).thenReturn("bname");
-    when(fileItemFormField4.getString()).thenReturn("samsung");
-
-    when(fileItemFormField5.isFormField()).thenReturn(true);
-    when(fileItemFormField5.getFieldName()).thenReturn("cname");
-    when(fileItemFormField5.getString()).thenReturn("watch");
-
-    when(fileItemFile.isFormField()).thenReturn(false);
-
-    List<FileItem> fileItems = new ArrayList<>();
-    fileItems.add(fileItemFormField1);
-    fileItems.add(fileItemFormField2);
-    fileItems.add(fileItemFormField3);
-    fileItems.add(fileItemFormField4);
-    fileItems.add(fileItemFormField5);
-    fileItems.add(fileItemFile);
-
-    when(servletFileUploadMock.parseRequest(any(HttpServletRequest.class))).thenReturn(fileItems);
-    when(myUtilitiesMock.UploadFile(eq(fileItemFile), anyString(), any())).thenReturn("produto_vazio.jpg");
-
-    try (MockedStatic<ServletFileUpload> uploadMock = mockStatic(ServletFileUpload.class)) {
-        uploadMock.when(() -> ServletFileUpload.isMultipartContent(any(HttpServletRequest.class))).thenReturn(true);
-
-        int result = dao.addproduct(request);
-
-        assertEquals(0, result);
-        verify(connection, never()).prepareStatement(anyString());
-        verify(preparedStatement, never()).executeUpdate();
-
-    }
-}
-
 
 // Valor Abaixo do Limite Inferior
 @Test
@@ -611,6 +562,55 @@ void testShouldReturnZeroWhenValuesAreBelowLowerLimit() throws Exception {
 
     }
 }
+
+
+@Test
+void testShouldAddProductWithNoName() throws Exception {
+    when(fileItemFormField1.isFormField()).thenReturn(true);
+    when(fileItemFormField1.getFieldName()).thenReturn("pname");
+    when(fileItemFormField1.getString()).thenReturn("");
+
+    when(fileItemFormField2.isFormField()).thenReturn(true);
+    when(fileItemFormField2.getFieldName()).thenReturn("pprice");
+    when(fileItemFormField2.getString()).thenReturn("1");
+
+    when(fileItemFormField3.isFormField()).thenReturn(true);
+    when(fileItemFormField3.getFieldName()).thenReturn("pquantity");
+    when(fileItemFormField3.getString()).thenReturn("1");
+
+    when(fileItemFormField4.isFormField()).thenReturn(true);
+    when(fileItemFormField4.getFieldName()).thenReturn("bname");
+    when(fileItemFormField4.getString()).thenReturn("samsung");
+
+    when(fileItemFormField5.isFormField()).thenReturn(true);
+    when(fileItemFormField5.getFieldName()).thenReturn("cname");
+    when(fileItemFormField5.getString()).thenReturn("watch");
+
+    when(fileItemFile.isFormField()).thenReturn(false);
+
+    List<FileItem> fileItems = new ArrayList<>();
+    fileItems.add(fileItemFormField1);
+    fileItems.add(fileItemFormField2);
+    fileItems.add(fileItemFormField3);
+    fileItems.add(fileItemFormField4);
+    fileItems.add(fileItemFormField5);
+    fileItems.add(fileItemFile);
+
+    when(servletFileUploadMock.parseRequest(any(HttpServletRequest.class))).thenReturn(fileItems);
+    when(myUtilitiesMock.UploadFile(eq(fileItemFile), anyString(), any())).thenReturn("produto_vazio.jpg");
+
+    try (MockedStatic<ServletFileUpload> uploadMock = mockStatic(ServletFileUpload.class)) {
+        uploadMock.when(() -> ServletFileUpload.isMultipartContent(any(HttpServletRequest.class))).thenReturn(true);
+
+        int result = dao.addproduct(request);
+
+        assertEquals(0, result);
+        verify(connection, never()).prepareStatement(anyString());
+        verify(preparedStatement, never()).executeUpdate();
+
+    }
+}
+
 
 
 @Test

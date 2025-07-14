@@ -193,8 +193,6 @@ private void logProductDetails(ProductData data) {
     }
 }
 
-
-
 // Classe interna para encapsular dados do produto
 private static class ProductData {
     private String pname = "";
@@ -266,11 +264,11 @@ public List<customer> getAllCustomer()
 	}
 
     // display selected customer
-public List<customer> getCustomer(String eid)
-{
-	String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
-	Object[] parameters = {eid};
-	return executeQuery(sql, parameters, EntityMappers::mapToCustomer);
-}
-	
+    public List<customer> getCustomer(String eid)
+    {
+        String sql = "select Name, Password, Email_Id, Contact_No from customer where Email_Id=?";
+        Object[] parameters = {eid};
+        return executeQuery(sql, parameters, EntityMappers::mapToCustomer);
+    }
+
 }
