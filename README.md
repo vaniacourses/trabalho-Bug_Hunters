@@ -45,6 +45,38 @@ projeto
 |       └── AddProdToCartTest.java
 
 ```
+
+## Testes de Sistema Selenium
+### Path
+```
+Os testes de selenium estão no repositório 
+>>>> src/test/java/com/selenium <<<
+
+Sendo eles:
+ - AddCashPaymentAndOrderConfirmationTest.java 
+    Testando o caso de Adicionar um pagamento em dinheiro com a opção de pagar na entrega e finalizar um pedido
+
+- BasicNavigationTest.java
+   Teste da configuração básica do selenium e navegação
+
+- PerformanceTest.java
+    Testes de performance do sistema.
+
+Page Objects Model estão no repositório
+    src/test/java/com/pages
+
+```
+
+## Testes de Integração
+### Path
+```
+
+>>> src/integration
+Testes de integração se encontram na pasta integration, foram criados direto no postman e a coleção foi exportada no arquivo  
+- Teste integracao PayProcessIntegration.postman_collection.json
+
+```
+
 ## Diagramas de Classe
 - [AddCustomerTest.java](https://github.com/vaniacourses/trabalho-Bug_Hunters/blob/main/Diagram/AddCustomerTest.png?raw=true)
 
